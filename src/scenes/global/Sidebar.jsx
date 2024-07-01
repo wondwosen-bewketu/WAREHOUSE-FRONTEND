@@ -83,11 +83,9 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
         <Box textAlign="center" mt={2} mb={4}>
           <img src={logo} alt="Logo" className={classes.logo} />
         </Box>
-
         <Typography variant="subtitle2" className={classes.menuHeader}>
           Menu
         </Typography>
-
         {userRole === "Admin" && (
           <>
             <ListItem
@@ -158,13 +156,24 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
 
             <ListItem
               className={classes.listItem}
-              onClick={() => handleItemClick("/recordsale")}
+              onClick={() => handleItemClick("/salesProductList")}
               button
             >
               <ListItemIcon>
                 <MonetizationOnIcon className={classes.lightBlueIcon} />
               </ListItemIcon>
-              <ListItemText primary="Record Sale" />
+              <ListItemText primary="Sales Product List" />
+            </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/transferSaleList")}
+              button
+            >
+              <ListItemIcon>
+                <MonetizationOnIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Transfer Sales Product List" />
             </ListItem>
           </>
         )}
@@ -205,7 +214,6 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
             </ListItem>
           </>
         )}
-
         {/* Add other userRole specific menu items similarly */}
       </List>
     </Drawer>

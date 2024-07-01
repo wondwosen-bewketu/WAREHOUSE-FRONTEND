@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Grid,
   Card,
@@ -15,9 +14,9 @@ import {
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-// import QRCode from 'react-qr-code';
 import MainCard from "../../ui-component/cards/MainCard";
 import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
+import { fetchProducts } from "../../api/api"; // Import the API function
 
 const Root = styled("div")(({ theme }) => ({
   flexGrow: 1,
@@ -127,20 +126,12 @@ const ProductList = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("http://localhost:4000/product/all");
-        if (Array.isArray(response.data)) {
-          setProducts(response.data);
-        } else {
-          console.error("Response data is not an array:", response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
+    const getProducts = async () => {
+      const data = await fetchProducts();
+      setProducts(data);
     };
 
-    fetchProducts();
+    getProducts();
   }, []);
 
   const handleOpenDialog = (product) => {
@@ -160,7 +151,6 @@ const ProductList = () => {
         <CardSecondaryAction link={"/addProduct"} title="Add Product" />
       }
     >
-      {/* <Title variant="h4">Product List</Title> */}
       <Root>
         <Grid container spacing={2} justifyContent="center">
           {products.map((product) => (

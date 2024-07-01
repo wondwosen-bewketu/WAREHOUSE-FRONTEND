@@ -1,8 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Grid, TextField, Button, Typography } from "@mui/material";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import axios from "axios";
 
 const theme = createTheme({
@@ -14,56 +12,44 @@ const theme = createTheme({
 });
 
 const TransferToSaleForm = () => {
-  const formik = useFormik({
-    initialValues: {
-      productId: "",
-      quantityToTransfer: 0,
-      stockTransferNumber: "",
-      transferredBy: "",
-      remark: "",
-      stockTransferImage: null,
-    },
-    validationSchema: Yup.object({
-      productId: Yup.string().required("Product ID is required"),
-      quantityToTransfer: Yup.number()
-        .min(1, "Quantity must be at least 1")
-        .required("Quantity is required"),
-      stockTransferNumber: Yup.string().required(
-        "Stock Transfer Number is required"
-      ),
-      transferredBy: Yup.string().required("Transferred By is required"),
-      remark: Yup.string(),
-      stockTransferImage: Yup.mixed(),
-    }),
-    onSubmit: async (values) => {
-      const formData = new FormData();
-      formData.append("productId", values.productId);
-      formData.append("quantityToTransfer", values.quantityToTransfer);
-      formData.append("stockTransferNumber", values.stockTransferNumber);
-      formData.append("transferredBy", values.transferredBy);
-      formData.append("remark", values.remark);
-      if (values.stockTransferImage) {
-        formData.append("stockTransferImage", values.stockTransferImage);
-      }
-
-      try {
-        const response = await axios.post("/api/transferToSale", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        console.log("Transfer to sale successful:", response.data);
-        // Handle success (e.g., show confirmation to user)
-      } catch (error) {
-        console.error("Error transferring to sale:", error);
-        // Handle error (e.g., show error message to user)
-      }
-    },
+  const [formData, setFormData] = useState({
+    quantityToTransfer: 0,
+    stockTransferNumber: "",
+    remark: "",
+    stockTransferImage: null,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    setFormData({
+      ...formData,
+      stockTransferImage: file,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+
+    const formDataToSend = new FormData();
+
+    formDataToSend.append("quantityToTransfer", formData.quantityToTransfer);
+    formDataToSend.append("stockTransferNumber", formData.stockTransferNumber);
+    formDataToSend.append("remark", formData.remark);
+   
 
   return (
     <ThemeProvider theme={theme}>
-      <form onSubmit={formik.handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <Typography variant="h5" gutterBottom>
           Transfer to Sale
         </Typography>
@@ -78,34 +64,14 @@ const TransferToSaleForm = () => {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              id="productId"
-              name="productId"
-              label="Product ID"
-              value={formik.values.productId}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.productId && Boolean(formik.errors.productId)
-              }
-              helperText={formik.touched.productId && formik.errors.productId}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
               id="quantityToTransfer"
               name="quantityToTransfer"
               label="Quantity to Transfer"
               type="number"
-              value={formik.values.quantityToTransfer}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.quantityToTransfer &&
-                Boolean(formik.errors.quantityToTransfer)
-              }
-              helperText={
-                formik.touched.quantityToTransfer &&
-                formik.errors.quantityToTransfer
-              }
+              value={formData.quantityToTransfer}
+              onChange={handleChange}
+              required
+              InputProps={{ inputProps: { min: 1 } }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -114,33 +80,9 @@ const TransferToSaleForm = () => {
               id="stockTransferNumber"
               name="stockTransferNumber"
               label="Stock Transfer Number"
-              value={formik.values.stockTransferNumber}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.stockTransferNumber &&
-                Boolean(formik.errors.stockTransferNumber)
-              }
-              helperText={
-                formik.touched.stockTransferNumber &&
-                formik.errors.stockTransferNumber
-              }
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              id="transferredBy"
-              name="transferredBy"
-              label="Transferred By"
-              value={formik.values.transferredBy}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.transferredBy &&
-                Boolean(formik.errors.transferredBy)
-              }
-              helperText={
-                formik.touched.transferredBy && formik.errors.transferredBy
-              }
+              value={formData.stockTransferNumber}
+              onChange={handleChange}
+              required
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -149,10 +91,8 @@ const TransferToSaleForm = () => {
               id="remark"
               name="remark"
               label="Remark"
-              value={formik.values.remark}
-              onChange={formik.handleChange}
-              error={formik.touched.remark && Boolean(formik.errors.remark)}
-              helperText={formik.touched.remark && formik.errors.remark}
+              value={formData.remark}
+              onChange={handleChange}
             />
           </Grid>
           <Grid item xs={12}>
@@ -162,12 +102,7 @@ const TransferToSaleForm = () => {
               id="stockTransferImage"
               name="stockTransferImage"
               type="file"
-              onChange={(event) =>
-                formik.setFieldValue(
-                  "stockTransferImage",
-                  event.currentTarget.files[0]
-                )
-              }
+              onChange={handleImageChange}
             />
             <label htmlFor="stockTransferImage">
               <Button variant="outlined" component="span">
@@ -176,8 +111,13 @@ const TransferToSaleForm = () => {
             </label>
           </Grid>
           <Grid item xs={12}>
-            <Button variant="contained" color="primary" type="submit">
-              Transfer to Sale
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Transfer to Sale"}
             </Button>
           </Grid>
         </Grid>

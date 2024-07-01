@@ -13,11 +13,19 @@ import { ColorModeContext, useMode } from "./theme";
 import { setUser } from "./redux/slice/userSlice";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
-const Settings = React.lazy(() => import("./scenes/user/Settings"));
+const Login = React.lazy(() => import("./scenes/user/loginPage"));
 const AddProducts = React.lazy(() => import("./scenes/products/addProducts"));
 const ListProducts = React.lazy(() => import("./scenes/products/listProducts"));
 const Restock = React.lazy(() => import("./scenes/products/restock"));
 const RecordSale = React.lazy(() => import("./scenes/products/recordSale"));
+const TransferSaleList = React.lazy(() =>
+  import("./scenes/products/transferSaleList")
+);
+
+const SalesProductList = React.lazy(() =>
+  import("./scenes/products/salesProductList")
+);
+
 const ProductTransferList = React.lazy(() =>
   import("./scenes/products/productTransferList")
 );
@@ -41,11 +49,17 @@ function PrivateRoutes() {
             <Route index element={<Navigate replace to="/addProducts" />} />
             <Route path="/addProducts" element={<AddProducts />} />
             <Route path="/listProducts" element={<ListProducts />} />
-            <Route path="/transfertosale" element={<TransferToSale />} />
+            <Route
+              path="/transfertosale/:productId"
+              element={<TransferToSale />}
+            />
             <Route path="/restock" element={<Restock />} />
-            <Route path="/recordsale" element={<RecordSale />} />
+            <Route path="/recordsale/:productId" element={<RecordSale />} />
             <Route path="/stockTransfer" element={<StockTransfer />} />
             <Route path="/productTransfer" element={<ProductTransferList />} />
+            TransferSaleList
+            <Route path="/salesProductList" element={<SalesProductList />} />
+            <Route path="/transferSaleList" element={<TransferSaleList />} />
           </Routes>
         );
       case "Call Center":
@@ -114,53 +128,64 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Topbar toggleSidebar={toggleSidebar} />
-        <Box
-          sx={{
-            display: "flex",
-            marginTop: "-30px", // Adjust based on your topbar height
-          }}
-        >
-          <Sidebar
-            userRole={user.user.role} // assuming user.user.role is correct
-            isOpen={isSidebarOpen}
-            toggleSidebar={toggleSidebar}
-          />
-          <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              overflowX: "hidden",
-              transition: theme.transitions.create("margin", {
-                easing: theme.transitions.easing.easeOut,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-              marginLeft: isSidebarOpen ? `280px` : `0px`, // Adjust based on sidebar width
-              marginTop: "64px", // Adjust based on your topbar height
-              paddingLeft: theme.spacing(2), // Adjust as needed
-              paddingRight: theme.spacing(2), // Adjust as needed
-              paddingBottom: theme.spacing(2), // Adjust as needed
-            }}
-          >
-            <Suspense
-              fallback={
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100vh",
+        <div>
+          {user && user.token ? (
+            <>
+              <Topbar toggleSidebar={toggleSidebar} />
+              <Box
+                sx={{
+                  display: "flex",
+                  marginTop: "-30px", // Adjust based on your topbar height
+                }}
+              >
+                <Sidebar
+                  userRole={user.user.role} // assuming user.user.role is correct
+                  isOpen={isSidebarOpen}
+                  toggleSidebar={toggleSidebar}
+                />
+                <Box
+                  component="main"
+                  sx={{
+                    flexGrow: 1,
+                    overflowX: "hidden",
+                    transition: theme.transitions.create("margin", {
+                      easing: theme.transitions.easing.easeOut,
+                      duration: theme.transitions.duration.enteringScreen,
+                    }),
+                    marginLeft: isSidebarOpen ? `280px` : `0px`, // Adjust based on sidebar width
+                    marginTop: "64px", // Adjust based on your topbar height
+                    paddingLeft: theme.spacing(2), // Adjust as needed
+                    paddingRight: theme.spacing(2), // Adjust as needed
+                    paddingBottom: theme.spacing(2), // Adjust as needed
                   }}
                 >
-                  Loading...
-                  <CircularProgress />
-                </div>
-              }
-            >
-              <PrivateRoutes />
-            </Suspense>
-          </Box>
-        </Box>
+                  <Suspense
+                    fallback={
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "100vh",
+                        }}
+                      >
+                        Loading...
+                        <CircularProgress />
+                      </div>
+                    }
+                  >
+                    <PrivateRoutes />
+                  </Suspense>
+                </Box>
+              </Box>
+            </>
+          ) : (
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/*" element={<Navigate to="/" />} />
+            </Routes>
+          )}
+        </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

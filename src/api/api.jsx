@@ -84,13 +84,53 @@ export const addProduct = async (formData) => {
 };
 
 // Function to fetch all products
-export const fetchAllProducts = async () => {
+export const fetchProducts = async () => {
   try {
-    setAuthHeaders(); // Ensure the Authorization header is set
-    const response = await api.get("/product/all");
+    const response = await axios.get(`${BASE_URL}product/all`);
+    if (Array.isArray(response.data)) {
+      return response.data;
+    } else {
+      console.error("Response data is not an array:", response.data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
+};
+
+export const recordSale = async (productId, saleData) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}sales/record/${productId}`, // Use `${BASE_URL}sales/record/${productId}` for the URL
+      saleData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error("Error fetching all products:", error.message);
-    throw new Error("Failed to fetch all products");
+    console.error("Error recording sale:", error);
+    throw error;
+  }
+};
+
+export const transferSale = async (productId, saleData) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}transfer/transfer-to-sale;${productId}`,
+      saleData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error recording sale:", error);
+    throw error;
   }
 };

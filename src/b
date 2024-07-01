@@ -1,0 +1,68 @@
+ <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <div className="app">
+          {user && user.token ? (
+            <>
+              {/* Ensure Topbar is styled to stay at the top */}
+              <Topbar toggleSidebar={toggleSidebar} />
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row", // Adjusted to row for horizontal layout
+                  height: "100%",
+                }}
+              >
+                {/* Adjust Sidebar and main content layout */}
+                <Sidebar
+                  userRole={user.user?.role || ""}
+                  isOpen={isSidebarOpen}
+                  toggleSidebar={toggleSidebar}
+                  sx={{ width: isSidebarOpen ? 280 : 0 }} // Control Sidebar width dynamically
+                />
+
+                <Box
+                  component="main"
+                  sx={{
+                    flexGrow: 1,
+                    overflowX: "hidden",
+                    transition: theme.transitions.create("width", {
+                      easing: theme.transitions.easing.easeOut,
+                      duration: theme.transitions.duration.enteringScreen,
+                    }),
+                    marginLeft: isSidebarOpen ? 280 : 0, // Adjust margin for main content
+                    marginTop: "64px", // Ensure there's space at the top for the Topbar
+                    paddingLeft: theme.spacing(2),
+                    paddingRight: theme.spacing(2),
+                    paddingBottom: theme.spacing(2),
+                  }}
+                >
+                  <Suspense
+                    fallback={
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          height: "calc(100vh - 64px)", // Adjust height to account for Topbar
+                        }}
+                      >
+                        <CircularProgress />
+                      </div>
+                    }
+                  >
+                    <PrivateRoutes />
+                  </Suspense>
+                </Box>
+              </Box>
+            </>
+          ) : (
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/*" element={<Navigate to="/" />} />
+            </Routes>
+          )}
+        </div>
+      </ThemeProvider>
+    </ColorModeContext.Provider>
