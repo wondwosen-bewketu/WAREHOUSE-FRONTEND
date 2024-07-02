@@ -117,23 +117,56 @@ export const recordSale = async (productId, saleData) => {
   }
 };
 
-export const transferSale = async (productId, saleData) => {
+export const transferToSale = async (productId, data) => {
   try {
+    const formData = new FormData();
+    formData.append("quantityToTransfer", data.quantityToTransfer);
+    formData.append("stockTransferNumber", data.stockTransferNumber);
+    formData.append("remark", data.remark);
+
+    if (data.stockTransferImage) {
+      formData.append("stockTransferImage", data.stockTransferImage);
+    }
+
     const response = await axios.post(
       `${BASE_URL}transfer/transfer-to-sale/${productId}`,
-      saleData,
+      formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       }
     );
+
     return response.data;
   } catch (error) {
-    console.error(
-      "Error recording sale:",
-      error.response ? error.response.data : error.message
+    throw error.response ? error.response.data : new Error("Network error");
+  }
+};
+
+export const restock = async (productId, data) => {
+  try {
+    const formData = new FormData();
+    formData.append("quantityToTransfer", data.quantityToTransfer);
+    formData.append("stockTransferNumber", data.stockTransferNumber);
+    formData.append("remark", data.remark);
+
+    if (data.stockTransferImage) {
+      formData.append("stockTransferImage", data.stockTransferImage);
+    }
+
+    const response = await axios.post(
+      `${BASE_URL}transfer/restock-from-sale/${productId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
-    throw error;
+
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : new Error("Network error");
   }
 };

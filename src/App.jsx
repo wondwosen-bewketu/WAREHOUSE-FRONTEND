@@ -17,6 +17,8 @@ const Login = React.lazy(() => import("./scenes/user/loginPage"));
 const AddProducts = React.lazy(() => import("./scenes/products/addProducts"));
 const ListProducts = React.lazy(() => import("./scenes/products/listProducts"));
 const Restock = React.lazy(() => import("./scenes/products/restock"));
+const RestockList = React.lazy(() => import("./scenes/products/restockList"));
+
 const RecordSale = React.lazy(() => import("./scenes/products/recordSale"));
 const TransferSaleList = React.lazy(() =>
   import("./scenes/products/transferSaleList")
@@ -53,13 +55,14 @@ function PrivateRoutes() {
               path="/transfertosale/:productId"
               element={<TransferToSale />}
             />
-            <Route path="/restock" element={<Restock />} />
+            <Route path="/restock/:productId" element={<Restock />} />
             <Route path="/recordsale/:productId" element={<RecordSale />} />
             <Route path="/stockTransfer" element={<StockTransfer />} />
             <Route path="/productTransfer" element={<ProductTransferList />} />
             TransferSaleList
             <Route path="/salesProductList" element={<SalesProductList />} />
             <Route path="/transferSaleList" element={<TransferSaleList />} />
+            <Route path="/restockTransferList" element={<RestockList />} />
           </Routes>
         );
       case "Call Center":

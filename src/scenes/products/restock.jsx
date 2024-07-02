@@ -1,189 +1,124 @@
-// import React from "react";
-// import { createTheme, ThemeProvider } from "@mui/material/styles";
-// import { Grid, TextField, Button, Typography } from "@mui/material";
-// import { useFormik } from "formik";
-// import * as Yup from "yup";
-// import axios from "axios";
+import React, { useState } from "react";
+import { transferToSale } from "../../api/api";
+import { TextField, Button, CircularProgress, Typography } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// const theme = createTheme({
-//   palette: {
-//     primary: {
-//       main: "#03a9f4", // Light blue color
-//     },
-//   },
-// });
+const TransferToSale = () => {
+  const { productId } = useParams();
+  const [quantityToTransfer, setQuantityToTransfer] = useState("");
+  const [stockTransferNumber, setStockTransferNumber] = useState("");
+  const [remark, setRemark] = useState("");
+  const [stockTransferImage, setStockTransferImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-// const RestockFromSaleForm = () => {
-//   const formik = useFormik({
-//     initialValues: {
-//       productId: "",
-//       quantityToRestock: 0,
-//       stockTransferNumber: "",
-//       transferredBy: "",
-//       remark: "",
-//       stockTransferImage: null,
-//     },
-//     validationSchema: Yup.object({
-//       productId: Yup.string().required("Product ID is required"),
-//       quantityToRestock: Yup.number()
-//         .min(1, "Quantity must be at least 1")
-//         .required("Quantity is required"),
-//       stockTransferNumber: Yup.string().required(
-//         "Stock Transfer Number is required"
-//       ),
-//       transferredBy: Yup.string().required("Transferred By is required"),
-//       remark: Yup.string(),
-//       stockTransferImage: Yup.mixed(),
-//     }),
-//     onSubmit: async (values) => {
-//       const formData = new FormData();
-//       formData.append("productId", values.productId);
-//       formData.append("quantityToRestock", values.quantityToRestock);
-//       formData.append("stockTransferNumber", values.stockTransferNumber);
-//       formData.append("transferredBy", values.transferredBy);
-//       formData.append("remark", values.remark);
-//       if (values.stockTransferImage) {
-//         formData.append("stockTransferImage", values.stockTransferImage);
-//       }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-//       try {
-//         const response = await axios.post("/api/restockFromSale", formData, {
-//           headers: {
-//             "Content-Type": "multipart/form-data",
-//           },
-//         });
-//         console.log("Restock from sale successful:", response.data);
-//         // Handle success (e.g., show confirmation to user)
-//       } catch (error) {
-//         console.error("Error restocking from sale:", error);
-//         // Handle error (e.g., show error message to user)
-//       }
-//     },
-//   });
+    try {
+      const formData = {
+        quantityToTransfer: parseInt(quantityToTransfer, 10), // Ensure quantity is an integer
+        stockTransferNumber,
+        remark,
+        stockTransferImage,
+      };
 
-//   return (
-//     <ThemeProvider theme={theme}>
-//       <form onSubmit={formik.handleSubmit}>
-//         <Typography variant="h5" gutterBottom>
-//           Restock from Sale
-//         </Typography>
-//         <hr
-//           style={{
-//             border: "1px solid #ccc",
-//             width: "100%",
-//             marginBottom: "1rem",
-//           }}
-//         />
-//         <Grid container spacing={2}>
-//           <Grid item xs={12} md={6}>
-//             <TextField
-//               fullWidth
-//               id="productId"
-//               name="productId"
-//               label="Product ID"
-//               value={formik.values.productId}
-//               onChange={formik.handleChange}
-//               error={
-//                 formik.touched.productId && Boolean(formik.errors.productId)
-//               }
-//               helperText={formik.touched.productId && formik.errors.productId}
-//             />
-//           </Grid>
-//           <Grid item xs={12} md={6}>
-//             <TextField
-//               fullWidth
-//               id="quantityToRestock"
-//               name="quantityToRestock"
-//               label="Quantity to Restock"
-//               type="number"
-//               value={formik.values.quantityToRestock}
-//               onChange={formik.handleChange}
-//               error={
-//                 formik.touched.quantityToRestock &&
-//                 Boolean(formik.errors.quantityToRestock)
-//               }
-//               helperText={
-//                 formik.touched.quantityToRestock &&
-//                 formik.errors.quantityToRestock
-//               }
-//             />
-//           </Grid>
-//           <Grid item xs={12}>
-//             <TextField
-//               fullWidth
-//               id="stockTransferNumber"
-//               name="stockTransferNumber"
-//               label="Stock Transfer Number"
-//               value={formik.values.stockTransferNumber}
-//               onChange={formik.handleChange}
-//               error={
-//                 formik.touched.stockTransferNumber &&
-//                 Boolean(formik.errors.stockTransferNumber)
-//               }
-//               helperText={
-//                 formik.touched.stockTransferNumber &&
-//                 formik.errors.stockTransferNumber
-//               }
-//             />
-//           </Grid>
-//           <Grid item xs={12} md={6}>
-//             <TextField
-//               fullWidth
-//               id="transferredBy"
-//               name="transferredBy"
-//               label="Transferred By"
-//               value={formik.values.transferredBy}
-//               onChange={formik.handleChange}
-//               error={
-//                 formik.touched.transferredBy &&
-//                 Boolean(formik.errors.transferredBy)
-//               }
-//               helperText={
-//                 formik.touched.transferredBy && formik.errors.transferredBy
-//               }
-//             />
-//           </Grid>
-//           <Grid item xs={12} md={6}>
-//             <TextField
-//               fullWidth
-//               id="remark"
-//               name="remark"
-//               label="Remark"
-//               value={formik.values.remark}
-//               onChange={formik.handleChange}
-//               error={formik.touched.remark && Boolean(formik.errors.remark)}
-//               helperText={formik.touched.remark && formik.errors.remark}
-//             />
-//           </Grid>
-//           <Grid item xs={12}>
-//             <input
-//               accept="image/*"
-//               style={{ display: "none" }}
-//               id="stockTransferImage"
-//               name="stockTransferImage"
-//               type="file"
-//               onChange={(event) =>
-//                 formik.setFieldValue(
-//                   "stockTransferImage",
-//                   event.currentTarget.files[0]
-//                 )
-//               }
-//             />
-//             <label htmlFor="stockTransferImage">
-//               <Button variant="outlined" component="span">
-//                 Upload Stock Transfer Image
-//               </Button>
-//             </label>
-//           </Grid>
-//           <Grid item xs={12}>
-//             <Button variant="contained" color="primary" type="submit">
-//               Restock from Sale
-//             </Button>
-//           </Grid>
-//         </Grid>
-//       </form>
-//     </ThemeProvider>
-//   );
-// };
+      const response = await transferToSale(productId, formData);
+      toast.success("Stock transfer successful!");
+      setQuantityToTransfer("");
+      setStockTransferNumber("");
+      setRemark("");
+      setStockTransferImage(null);
+    } catch (error) {
+      toast.error(error.error || "Stock transfer failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-// export default RestockFromSaleForm;
+  const styles = {
+    formContainer: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100vh",
+      backgroundColor: "#f0f8ff",
+      padding: "20px",
+      borderRadius: "8px",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    },
+    form: {
+      width: "100%",
+      maxWidth: "500px",
+    },
+    button: {
+      backgroundColor: "#1976d2",
+      color: "#fff",
+    },
+    input: {
+      margin: "16px 0",
+    },
+  };
+
+  return (
+    <div style={styles.formContainer}>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <Typography variant="h5" color="primary" gutterBottom>
+          Product Restock
+        </Typography>
+        <TextField
+          label="Quantity to Transfer"
+          value={quantityToTransfer}
+          onChange={(e) => setQuantityToTransfer(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+          type="number"
+          style={styles.input}
+        />
+        <TextField
+          label="Stock Transfer Number"
+          value={stockTransferNumber}
+          onChange={(e) => setStockTransferNumber(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+          style={styles.input}
+        />
+        <TextField
+          label="Remark"
+          value={remark}
+          onChange={(e) => setRemark(e.target.value)}
+          fullWidth
+          margin="normal"
+          style={styles.input}
+        />
+        <input
+          type="file"
+          onChange={(e) => setStockTransferImage(e.target.files[0])}
+          accept="image/*"
+          style={styles.input}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          style={styles.button}
+          disabled={loading}
+          fullWidth
+        >
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Transfer to Sale"
+          )}
+        </Button>
+      </form>
+      <ToastContainer />
+    </div>
+  );
+};
+
+export default TransferToSale;

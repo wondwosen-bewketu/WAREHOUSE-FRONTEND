@@ -175,6 +175,15 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               </ListItemIcon>
               <ListItemText primary="Transfer Sales Product List" />
             </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/restockTransferList")}
+              button
+            >
+              <ListItemIcon></ListItemIcon>
+              <ListItemText primary="Restock Transfer List" />
+            </ListItem>
           </>
         )}
 
