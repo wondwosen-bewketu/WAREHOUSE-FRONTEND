@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Grid, TextField, Button, Typography, MenuItem } from "@mui/material";
 import { recordSale } from "../../api/api";

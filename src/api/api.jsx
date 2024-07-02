@@ -120,7 +120,7 @@ export const recordSale = async (productId, saleData) => {
 export const transferSale = async (productId, saleData) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}transfer/transfer-to-sale;${productId}`,
+      `${BASE_URL}transfer/transfer-to-sale/${productId}`,
       saleData,
       {
         headers: {
@@ -130,7 +130,10 @@ export const transferSale = async (productId, saleData) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error recording sale:", error);
+    console.error(
+      "Error recording sale:",
+      error.response ? error.response.data : error.message
+    );
     throw error;
   }
 };

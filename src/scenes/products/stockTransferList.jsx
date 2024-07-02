@@ -71,7 +71,7 @@ const ProductList = () => {
                       color="primary"
                       onClick={() => handleSaleButtonClick(product._id)}
                     >
-                      Send
+                      Restock
                     </Button>
                   </TableCell>
                 </TableRow>
