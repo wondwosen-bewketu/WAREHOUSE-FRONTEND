@@ -1,23 +1,32 @@
 import React, { useState, useEffect, Suspense } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   CssBaseline,
   ThemeProvider,
   CircularProgress,
   Box,
-  AppBar,
-  Toolbar,
 } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import { setUser } from "./redux/slice/userSlice";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
 const Login = React.lazy(() => import("./scenes/user/loginPage"));
+const Dashboard = React.lazy(() => import("./scenes/Dashboard/dashboard"));
+
 const AddProducts = React.lazy(() => import("./scenes/products/addProducts"));
+const ProductTransferList = React.lazy(() =>
+  import("./scenes/products/productTransferList")
+);
+const RestockTransfer = React.lazy(() =>
+  import("./scenes/products/restockTransfer")
+);
 const ListProducts = React.lazy(() => import("./scenes/products/listProducts"));
 const Restock = React.lazy(() => import("./scenes/products/restock"));
 const RestockList = React.lazy(() => import("./scenes/products/restockList"));
+const RegisterUser = React.lazy(() =>
+  import("./scenes/Registration/registerUser")
+);
 
 const RecordSale = React.lazy(() => import("./scenes/products/recordSale"));
 const TransferSaleList = React.lazy(() =>
@@ -28,48 +37,57 @@ const SalesProductList = React.lazy(() =>
   import("./scenes/products/salesProductList")
 );
 
-const ProductTransferList = React.lazy(() =>
-  import("./scenes/products/productTransferList")
-);
-const StockTransfer = React.lazy(() =>
-  import("./scenes/products/stockTransfer")
-);
-
 const TransferToSale = React.lazy(() =>
   import("./scenes/products/transferToSale")
 );
 
 function PrivateRoutes() {
   const user = useSelector((state) => state.user);
-  const navigate = useNavigate();
 
   if (user && user.token) {
     switch (user.user.role) {
-      case "Admin":
+      case "admin":
         return (
           <Routes>
-            <Route index element={<Navigate replace to="/addProducts" />} />
-            <Route path="/addProducts" element={<AddProducts />} />
+            <Route index element={<Navigate replace to="/dashboard" />} />
+            <Route path="/registerUser" element={<RegisterUser />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/listProducts" element={<ListProducts />} />
+          </Routes>
+        );
+      case "manager": // Combine cases for Call Center and General Manager
+        return (
+          <Routes>
+            <Route index element={<Navigate replace to="/dashboard" />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/addProducts" element={<AddProducts />} />
+            <Route
+              path="productTransferList"
+              element={<ProductTransferList />}
+            />
+            <Route path="/restockTransfer" element={<RestockTransfer />} />
+
             <Route
               path="/transfertosale/:productId"
               element={<TransferToSale />}
             />
-            <Route path="/restock/:productId" element={<Restock />} />
-            <Route path="/recordsale/:productId" element={<RecordSale />} />
-            <Route path="/stockTransfer" element={<StockTransfer />} />
-            <Route path="/productTransfer" element={<ProductTransferList />} />
-            TransferSaleList
-            <Route path="/salesProductList" element={<SalesProductList />} />
             <Route path="/transferSaleList" element={<TransferSaleList />} />
-            <Route path="/restockTransferList" element={<RestockList />} />
           </Routes>
         );
-      case "Call Center":
-      case "General Manager": // Combine cases for Call Center and General Manager
+      case "sales": // Combine cases for Call Center and General Manager
         return (
           <Routes>
             <Route index element={<Navigate replace to="/dashboard" />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/restock/:productId" element={<Restock />} />
+            <Route path="/recordsale/:productId" element={<RecordSale />} />
+            <Route path="/salesProductList" element={<SalesProductList />} />
+            <Route path="/restockTransferList" element={<RestockList />} />
+            <Route
+              path="productTransferList"
+              element={<ProductTransferList />}
+            />
+            <Route path="/restockTransfer" element={<RestockTransfer />} />
           </Routes>
         );
 

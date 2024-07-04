@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import MainCard from "../../ui-component/cards/MainCard";
 import SecondaryAction from "../../ui-component/cards/CardSecondaryAction";
@@ -241,6 +241,7 @@ const AddProduct = () => {
             <Grid item xs={12} sm={6} className={classes.formField}>
               <input
                 accept="image/*"
+                label="GRN Image"
                 className={classes.fileInput}
                 id="grnImage"
                 type="file"

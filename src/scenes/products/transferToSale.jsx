@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { transferToSale } from "../../api/api";
-import { TextField, Button, CircularProgress, Typography } from "@mui/material";
+import {
+  TextField,
+  Button,
+  CircularProgress,
+  Typography,
+  Paper,
+  Box,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,85 +46,79 @@ const TransferToSale = () => {
   };
 
   const styles = {
-    formContainer: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "100vh",
-      backgroundColor: "#f0f8ff",
+    paper: {
+      maxWidth: "900px",
+      margin: "auto",
       padding: "20px",
-      borderRadius: "8px",
       boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
     },
-    form: {
-      width: "100%",
-      maxWidth: "500px",
-    },
     button: {
-      backgroundColor: "#1976d2",
+      backgroundColor: "#03a9f4",
       color: "#fff",
+      marginTop: "20px",
     },
     input: {
-      margin: "16px 0",
+      marginBottom: "16px",
     },
   };
 
   return (
-    <div style={styles.formContainer}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <Typography variant="h5" color="primary" gutterBottom>
+    <Paper elevation={3} style={styles.paper}>
+      <Box p={2}>
+        <Typography variant="h5" color="primary" gutterBottom align="center">
           Transfer Product to Sale
         </Typography>
-        <TextField
-          label="Quantity to Transfer"
-          value={quantityToTransfer}
-          onChange={(e) => setQuantityToTransfer(e.target.value)}
-          required
-          fullWidth
-          margin="normal"
-          type="number"
-          style={styles.input}
-        />
-        <TextField
-          label="Stock Transfer Number"
-          value={stockTransferNumber}
-          onChange={(e) => setStockTransferNumber(e.target.value)}
-          required
-          fullWidth
-          margin="normal"
-          style={styles.input}
-        />
-        <TextField
-          label="Remark"
-          value={remark}
-          onChange={(e) => setRemark(e.target.value)}
-          fullWidth
-          margin="normal"
-          style={styles.input}
-        />
-        <input
-          type="file"
-          onChange={(e) => setStockTransferImage(e.target.files[0])}
-          accept="image/*"
-          style={styles.input}
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          style={styles.button}
-          disabled={loading}
-          fullWidth
-        >
-          {loading ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            "Transfer to Sale"
-          )}
-        </Button>
-      </form>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Quantity to Transfer"
+            value={quantityToTransfer}
+            onChange={(e) => setQuantityToTransfer(e.target.value)}
+            required
+            fullWidth
+            margin="normal"
+            type="number"
+            style={styles.input}
+          />
+          <TextField
+            label="Stock Transfer Number"
+            value={stockTransferNumber}
+            onChange={(e) => setStockTransferNumber(e.target.value)}
+            required
+            fullWidth
+            margin="normal"
+            style={styles.input}
+          />
+          <TextField
+            label="Remark"
+            value={remark}
+            onChange={(e) => setRemark(e.target.value)}
+            fullWidth
+            margin="normal"
+            style={styles.input}
+          />
+          <input
+            type="file"
+            onChange={(e) => setStockTransferImage(e.target.files[0])}
+            accept="image/*"
+            style={styles.input}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            style={styles.button}
+            disabled={loading}
+            fullWidth
+          >
+            {loading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              "Transfer to Sale"
+            )}
+          </Button>
+        </form>
+      </Box>
       <ToastContainer />
-    </div>
+    </Paper>
   );
 };
 

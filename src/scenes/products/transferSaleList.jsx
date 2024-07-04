@@ -1,87 +1,123 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getTransfersToSale } from "../../api/api";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  Box,
   Button,
+  InputBase,
+  Paper,
+  Select,
+  MenuItem,
+  Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import MainCard from "../../ui-component/cards/MainCard";
-import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
-import { fetchProducts } from "../../api/api";
-import { useNavigate } from "react-router-dom";
+import "../../Styles/TransferToSale.css";
 
-const Root = styled("div")(({ theme }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(2),
-  background: theme.palette.background.default,
-}));
+const TransfersToSale = () => {
+  const [transfers, setTransfers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("");
 
-const ProductList = () => {
-  const [products, setProducts] = useState([]);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const getProducts = async () => {
-      const data = await fetchProducts();
-      setProducts(data);
-    };
-
-    getProducts();
-  }, []);
-
-  const handleSaleButtonClick = (productId) => {
-    navigate(`/transfertosale/${productId}`);
+  const fetchTransfers = async (page = 1) => {
+    setLoading(true);
+    try {
+      const { transfersToSale, totalPages } = await getTransfersToSale(
+        page,
+        searchTerm,
+        filterType
+      );
+      setTransfers(transfersToSale);
+      setTotalPages(totalPages);
+    } catch (error) {
+      console.error("Error fetching transfers to sale:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchTransfers(currentPage);
+  }, [currentPage, searchTerm, filterType]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleFilterChange = (event) => {
+    setFilterType(event.target.value);
+  };
+
+  if (loading) {
+    return <div className="loader">Loading...</div>;
+  }
+
   return (
-    <MainCard
-      title="Product List"
-      secondary={
-        <CardSecondaryAction link={"/addProduct"} title="Add Product" />
-      }
-    >
-      <Root>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Unit Price</TableCell>
-                <TableCell>Product Price</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {products.map((product) => (
-                <TableRow key={product._id} style={{ cursor: "pointer" }}>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell>{product.quantity}</TableCell>
-                  <TableCell>{product.unitPrice}</TableCell>
-                  <TableCell>{product.productPrice}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => handleSaleButtonClick(product._id)}
-                    >
-                      Send
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Root>
-    </MainCard>
+    <Paper className="container">
+      <Typography variant="h2" className="title">
+        Transfers to Sale
+      </Typography>
+      <div className="responsive-table">
+        <div className="table-header">
+          <div>Product Name</div>
+          <div>Quantity to Transfer</div>
+          <div>Transfer Type</div>
+          <div>Quantity on Sale</div>
+          <div>Total Sold Price</div>
+          <div>Stock Transfer Number</div>
+          <div>Transferred By</div>
+          <div>Remark</div>
+          <div className="search-filter">
+            <InputBase
+              placeholder="Search by Product Name or Remark..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="search-input"
+            />
+            <Select
+              value={filterType}
+              onChange={handleFilterChange}
+              className="filter-select"
+            >
+              <MenuItem value="">Filter by Transfer Type</MenuItem>
+              <MenuItem value="Internal">Internal</MenuItem>
+              <MenuItem value="External">External</MenuItem>
+            </Select>
+          </div>
+        </div>
+        {transfers.map((transfer) => (
+          <div className="table-row" key={transfer._id}>
+            <div>{transfer.productId.name}</div>
+            <div>{transfer.quantityToTransfer}</div>
+            <div>{transfer.transferType}</div>
+            <div>{transfer.quantityOnSale}</div>
+            <div>{transfer.totalSoldPrice}</div>
+            <div>{transfer.stockTransferNumber}</div>
+            <div>
+              {transfer.transferredBy ? transfer.transferredBy.name : "N/A"}
+            </div>
+            <div>{transfer.remark}</div>
+          </div>
+        ))}
+      </div>
+      <div className="pagination">
+        {[...Array(totalPages).keys()].map((number) => (
+          <Button
+            key={number + 1}
+            onClick={() => handlePageChange(number + 1)}
+            variant="contained"
+            className={currentPage === number + 1 ? "active" : ""}
+          >
+            {number + 1}
+          </Button>
+        ))}
+      </div>
+    </Paper>
   );
 };
 
-export default ProductList;
+export default TransfersToSale;

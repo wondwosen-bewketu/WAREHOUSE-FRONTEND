@@ -11,12 +11,15 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Paper,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import MainCard from "../../ui-component/cards/MainCard";
 import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
-import { fetchProducts } from "../../api/api"; // Import the API function
+import { fetchProducts } from "../../api/api";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const Root = styled("div")(({ theme }) => ({
   flexGrow: 1,
@@ -54,7 +57,7 @@ const CardTitle = styled(Typography)(({ theme }) => ({
   fontSize: "1.5rem",
   fontWeight: "bold",
   textAlign: "center",
-  color: theme.palette.primary.main,
+  color: "#1591ea",
   textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
   marginBottom: theme.spacing(1),
 }));
@@ -84,7 +87,7 @@ const QRCodeContainer = styled("div")(({ theme }) => ({
   position: "absolute",
   top: theme.spacing(1),
   right: theme.spacing(1),
-  zIndex: 1, // Ensure QR code is above other content
+  zIndex: 1,
 }));
 
 const DialogTitleWrapper = styled(DialogTitle)(({ theme }) => ({
@@ -120,10 +123,23 @@ const DialogImage = styled("img")(({ theme }) => ({
   },
 }));
 
+const PaginationContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: theme.spacing(2),
+}));
+
+const PaginationButton = styled(IconButton)(({ theme }) => ({
+  color: "#1591ea",
+}));
+
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [open, setOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
 
   useEffect(() => {
     const getProducts = async () => {
@@ -144,6 +160,16 @@ const ProductList = () => {
     setSelectedProduct(null);
   };
 
+  const handlePreviousPage = () => {
+    setPage((prevPage) => Math.max(prevPage - 1, 0));
+  };
+
+  const handleNextPage = () => {
+    setPage((prevPage) =>
+      (prevPage + 1) * rowsPerPage < products.length ? prevPage + 1 : prevPage
+    );
+  };
+
   return (
     <MainCard
       title="Product List"
@@ -153,45 +179,61 @@ const ProductList = () => {
     >
       <Root>
         <Grid container spacing={2} justifyContent="center">
-          {products.map((product) => (
-            <Grid item key={product._id} xs={12} sm={6} md={4} lg={3}>
-              <StyledCard>
-                <QRCodeContainer>
-                  <p value={product.barcode} size={48} />
-                </QRCodeContainer>
-                <CardContent>
-                  <CardTitle>{product.name}</CardTitle>
-                  <CardContentText>
-                    Category: {product.category}
-                  </CardContentText>
-                  <CardContentText>
-                    Quantity: {product.quantity}
-                  </CardContentText>
-                  <CardContentText>
-                    Unit Price: {product.unitPrice}
-                  </CardContentText>
-                  <CardContentText>
-                    Product Price: {product.productPrice}
-                  </CardContentText>
-                </CardContent>
-                <Actions>
-                  <DetailButton
-                    variant="outlined"
-                    onClick={() => handleOpenDialog(product)}
-                  >
-                    Detail
-                  </DetailButton>
-                  <IconButton aria-label="edit" color="primary">
-                    <Edit />
-                  </IconButton>
-                  <IconButton aria-label="delete" color="secondary">
-                    <Delete />
-                  </IconButton>
-                </Actions>
-              </StyledCard>
-            </Grid>
-          ))}
+          {products
+            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            .map((product) => (
+              <Grid item key={product._id} xs={12} sm={6} md={4} lg={3}>
+                <StyledCard>
+                  <QRCodeContainer>
+                    <p value={product.barcode} size={48} />
+                  </QRCodeContainer>
+                  <CardContent>
+                    <CardTitle>{product.name}</CardTitle>
+                    <CardContentText>
+                      Category: {product.category}
+                    </CardContentText>
+                    <CardContentText>
+                      Quantity: {product.quantity}
+                    </CardContentText>
+                    <CardContentText>
+                      Unit Price: {product.unitPrice}
+                    </CardContentText>
+                    <CardContentText>
+                      Product Price: {product.productPrice}
+                    </CardContentText>
+                  </CardContent>
+                  <Actions>
+                    <DetailButton
+                      variant="outlined"
+                      onClick={() => handleOpenDialog(product)}
+                    >
+                      Detail
+                    </DetailButton>
+                    <IconButton aria-label="edit" color="primary">
+                      <Edit />
+                    </IconButton>
+                    <IconButton aria-label="delete" color="secondary">
+                      <Delete />
+                    </IconButton>
+                  </Actions>
+                </StyledCard>
+              </Grid>
+            ))}
         </Grid>
+        <PaginationContainer>
+          <PaginationButton onClick={handlePreviousPage} disabled={page === 0}>
+            <ArrowBackIcon />
+          </PaginationButton>
+          <Typography variant="body2">
+            Page {page + 1} of {Math.ceil(products.length / rowsPerPage)}
+          </Typography>
+          <PaginationButton
+            onClick={handleNextPage}
+            disabled={(page + 1) * rowsPerPage >= products.length}
+          >
+            <ArrowForwardIcon />
+          </PaginationButton>
+        </PaginationContainer>
         <Dialog open={open} onClose={handleCloseDialog} fullWidth maxWidth="lg">
           <DialogTitleWrapper>Product Details</DialogTitleWrapper>
           <DialogContentWrapper dividers>

@@ -1,9 +1,18 @@
 import React, { useState } from "react";
 import { transferToSale } from "../../api/api";
-import { TextField, Button, CircularProgress, Typography } from "@mui/material";
+import {
+  TextField,
+  Button,
+  CircularProgress,
+  Typography,
+  Container,
+  Box,
+  Grid,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { styled } from "@mui/system";
 
 const TransferToSale = () => {
   const { productId } = useParams();
@@ -38,86 +47,94 @@ const TransferToSale = () => {
     }
   };
 
-  const styles = {
-    formContainer: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "100vh",
-      backgroundColor: "#f0f8ff",
-      padding: "20px",
-      borderRadius: "8px",
-      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  const StyledContainer = styled(Container)(({ theme }) => ({
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "100vh",
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(4),
+    marginTop: "-130px",
+  }));
+
+  const StyledForm = styled(Box)(({ theme }) => ({
+    width: "100%",
+    maxWidth: "800px",
+    backgroundColor: theme.palette.background.paper,
+    padding: theme.spacing(4),
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[4],
+  }));
+
+  const StyledButton = styled(Button)(({ theme }) => ({
+    backgroundColor: "#1591ea",
+    color: theme.palette.primary.contrastText,
+    "&:hover": {
+      backgroundColor: theme.palette.primary.dark,
     },
-    form: {
-      width: "100%",
-      maxWidth: "500px",
-    },
-    button: {
-      backgroundColor: "#1976d2",
-      color: "#fff",
-    },
-    input: {
-      margin: "16px 0",
-    },
-  };
+  }));
 
   return (
-    <div style={styles.formContainer}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <Typography variant="h5" color="primary" gutterBottom>
+    <StyledContainer>
+      <StyledForm component="form" onSubmit={handleSubmit}>
+        <Typography variant="h4" color="primary" gutterBottom>
           Product Restock
         </Typography>
-        <TextField
-          label="Quantity to Transfer"
-          value={quantityToTransfer}
-          onChange={(e) => setQuantityToTransfer(e.target.value)}
-          required
-          fullWidth
-          margin="normal"
-          type="number"
-          style={styles.input}
-        />
-        <TextField
-          label="Stock Transfer Number"
-          value={stockTransferNumber}
-          onChange={(e) => setStockTransferNumber(e.target.value)}
-          required
-          fullWidth
-          margin="normal"
-          style={styles.input}
-        />
-        <TextField
-          label="Remark"
-          value={remark}
-          onChange={(e) => setRemark(e.target.value)}
-          fullWidth
-          margin="normal"
-          style={styles.input}
-        />
-        <input
-          type="file"
-          onChange={(e) => setStockTransferImage(e.target.files[0])}
-          accept="image/*"
-          style={styles.input}
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          style={styles.button}
-          disabled={loading}
-          fullWidth
-        >
-          {loading ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            "Transfer to Sale"
-          )}
-        </Button>
-      </form>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              label="Quantity to Transfer"
+              value={quantityToTransfer}
+              onChange={(e) => setQuantityToTransfer(e.target.value)}
+              required
+              fullWidth
+              type="number"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Stock Transfer Number"
+              value={stockTransferNumber}
+              onChange={(e) => setStockTransferNumber(e.target.value)}
+              required
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Remark"
+              value={remark}
+              onChange={(e) => setRemark(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <input
+              type="file"
+              onChange={(e) => setStockTransferImage(e.target.files[0])}
+              accept="image/*"
+              style={{ marginTop: 16, marginBottom: 16 }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <StyledButton
+              type="submit"
+              color="primary"
+              variant="contained"
+              disabled={loading}
+              fullWidth
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Transfer to Sale"
+              )}
+            </StyledButton>
+          </Grid>
+        </Grid>
+      </StyledForm>
       <ToastContainer />
-    </div>
+    </StyledContainer>
   );
 };
 

@@ -1,5 +1,4 @@
-// components/RegisterUserForm.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { postUserAsync } from "../../redux/slice/userSlice";
 import {
@@ -13,9 +12,18 @@ import {
   Grid,
   Paper,
   Typography,
+  styled,
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  backgroundColor: "#f0f0f0", // Light background
+}));
 
 const RegisterUserForm = () => {
   const dispatch = useDispatch();
@@ -23,8 +31,9 @@ const RegisterUserForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
+    email: "",
     password: "",
-    role: "Admin", // Default role
+    role: "", // Default role
   });
 
   const [loading, setLoading] = useState(false);
@@ -47,8 +56,9 @@ const RegisterUserForm = () => {
       setFormData({
         fullName: "",
         phoneNumber: "",
+        email: "",
         password: "",
-        role: "Admin",
+        role: "",
       });
     } catch (error) {
       console.error("Error registering user:", error.message);
@@ -59,20 +69,21 @@ const RegisterUserForm = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Paper
-        elevation={3}
-        sx={{
-          padding: 3,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography component="h1" variant="h5">
+    <Container component="main" maxWidth="md">
+      {" "}
+      {/* Increased maxWidth to 'sm' */}
+      <StyledPaper elevation={3}>
+        <Typography
+          component="h1"
+          variant="h5"
+          style={{ color: "#1591ea", marginBottom: "1rem" }}
+        >
           Register User
         </Typography>
-        <form onSubmit={handleSubmit} style={{ width: "100%", marginTop: 2 }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ width: "100%", marginTop: "1rem" }}
+        >
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -90,6 +101,16 @@ const RegisterUserForm = () => {
                 name="phoneNumber"
                 fullWidth
                 value={formData.phoneNumber}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Email"
+                name="email"
+                fullWidth
+                value={formData.email}
                 onChange={handleChange}
                 required
               />
@@ -117,12 +138,8 @@ const RegisterUserForm = () => {
                   required
                 >
                   <MenuItem value=""></MenuItem>
-                  <MenuItem value="Admin">Admin</MenuItem>
-                  <MenuItem value="Call Center">Call Center</MenuItem>
-                  <MenuItem value="Finance">Finance</MenuItem>
-                  <MenuItem value="Oditor">Oditor</MenuItem>
-                  <MenuItem value="General Manager">General Manager</MenuItem>
-                  
+                  <MenuItem value="manager">Stock Manager</MenuItem>
+                  <MenuItem value="sales">Sales</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -131,13 +148,13 @@ const RegisterUserForm = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            sx={{ mt: 3, mb: 2, backgroundColor: "#1591ea", color: "white" }}
             disabled={loading}
           >
             {loading ? "Registering..." : "Register"}
           </Button>
         </form>
-      </Paper>
+      </StyledPaper>
       <ToastContainer
         position="top-right"
         autoClose={3000}

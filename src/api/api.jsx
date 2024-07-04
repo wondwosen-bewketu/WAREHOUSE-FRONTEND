@@ -46,7 +46,7 @@ export const changePassword = async (formData, token) => {
 export const postUser = async (userData) => {
   try {
     setAuthHeaders();
-    const response = await api.post("user/postuser", userData);
+    const response = await api.post("user/create", userData);
     return response.data;
   } catch (error) {
     console.error("Error posting user:", error.message);
@@ -168,5 +168,67 @@ export const restock = async (productId, data) => {
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : new Error("Network error");
+  }
+};
+
+export const getDashboardCounts = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}dashboard/counts`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching dashboard counts:", error);
+    throw error;
+  }
+};
+
+export const getStockTransferData = async (period) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}dashboard/stock-transfer-data`,
+      {
+        params: { period },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching dashboard counts:", error);
+    throw error;
+  }
+};
+
+export const getTransfersToSale = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}transfer/all/transferToSale`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching dashboard counts:", error);
+    throw error;
+  }
+};
+
+export const getRestocksFromSale = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}transfer/all/restockFromSale`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching dashboard counts:", error);
+    throw error;
+  }
+};
+
+export const updateProductQuantity = async (productId, data) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}product/update-quantity/${productId}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
