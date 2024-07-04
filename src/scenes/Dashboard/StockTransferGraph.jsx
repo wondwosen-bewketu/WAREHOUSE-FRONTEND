@@ -36,7 +36,7 @@ const StockTransferGraph = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://localhost:4000/dashboard/stock-transfer-data?period=daily"
+          "https://werahouse-backend.onrender.com/dashboard/stock-transfer-data?period=daily"
         );
         const data = await response.json();
 
