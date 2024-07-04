@@ -1,6 +1,50 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Button,
+  TextField,
+  Paper,
+  Box,
+  CircularProgress,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import MainCard from "../../ui-component/cards/MainCard";
+import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
+import { useNavigate } from "react-router-dom";
 import { getTransfersToSale } from "../../api/api";
-import "../../Styles/TransferToSale.css";
+
+const Root = styled("div")(({ theme }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(2),
+  background: theme.palette.background.default,
+}));
+
+const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[4],
+  backgroundColor: theme.palette.background.paper,
+}));
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  fontWeight: theme.typography.fontWeightBold,
+  backgroundColor: "#1591ea",
+  color: theme.palette.common.white,
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: "#1591ea",
+  color: theme.palette.common.white,
+  "&:hover": {
+    backgroundColor: theme.palette.primary.dark,
+  },
+}));
 
 const TransfersToSale = () => {
   const [transfers, setTransfers] = useState([]);
@@ -13,7 +57,7 @@ const TransfersToSale = () => {
   const fetchTransfers = async (page = 1) => {
     setLoading(true);
     try {
-      const { transfersToSale, totalPages } = await getTransfersToSale(
+      const { transfersToSale = [], totalPages = 1 } = await getTransfersToSale(
         page,
         searchTerm,
         filterType
@@ -44,91 +88,74 @@ const TransfersToSale = () => {
   };
 
   if (loading) {
-    return <div className="loader">Loading...</div>;
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <div className="container">
-      <h2 className="title">Transfers to Sale</h2>
-      <div className="filters" style={{ marginBottom: "16px" }}>
-        <input
-          type="text"
-          placeholder="Search by Product Name or Remark..."
+    <MainCard
+      title="Transfers to Sale"
+      secondary={
+        <CardSecondaryAction link={"/addTransfer"} title="Add Transfer" />
+      }
+    >
+      <Root>
+        <TextField
+          label="Search by Product Name or Remark"
+          variant="outlined"
+          fullWidth
           value={searchTerm}
           onChange={handleSearchChange}
-          style={{
-            padding: "8px",
-            marginRight: "16px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            fontSize: "14px",
-            width: "300px",
-          }}
+          sx={{ marginBottom: 2 }}
         />
-        <select
-          value={filterType}
-          onChange={handleFilterChange}
-          style={{
-            padding: "8px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            fontSize: "14px",
-            width: "200px",
-          }}
-        >
-          <option value="">Filter by Transfer Type</option>
-          <option value="Internal">Internal</option>
-          <option value="External">External</option>
-        </select>
-      </div>
-      <div className="responsive-table">
-        <div className="table-header">
-          <div>Product Name</div>
-          <div>Quantity to Transfer</div>
-          <div>Transfer Type</div>
-          <div>Quantity on Sale</div>
-          <div>Total Sold Price</div>
-          <div>Stock Transfer Number</div>
-          <div>Transferred By</div>
-          <div>Remark</div>
-        </div>
-        {transfers.map((transfer) => (
-          <div className="table-row" key={transfer._id}>
-            <div>{transfer.productId.name}</div>
-            <div>{transfer.quantityToTransfer}</div>
-            <div>{transfer.transferType}</div>
-            <div>{transfer.quantityOnSale}</div>
-            <div>{transfer.totalSoldPrice}</div>
-            <div>{transfer.stockTransferNumber}</div>
-            <div>
-              {transfer.transferredBy ? transfer.transferredBy.name : "N/A"}
-            </div>
-            <div>{transfer.remark}</div>
-          </div>
-        ))}
-      </div>
-      <div className="pagination">
-        {[...Array(totalPages).keys()].map((number) => (
-          <button
-            key={number + 1}
-            onClick={() => handlePageChange(number + 1)}
-            className={currentPage === number + 1 ? "active" : ""}
-            style={{
-              padding: "8px",
-              margin: "4px",
-              cursor: "pointer",
-              backgroundColor: currentPage === number + 1 ? "#1591ea" : "#fff",
-              color: currentPage === number + 1 ? "#fff" : "#1591ea",
-              border: "1px solid #1591ea",
-              borderRadius: "4px",
-              fontSize: "14px",
-            }}
-          >
-            {number + 1}
-          </button>
-        ))}
-      </div>
-    </div>
+        <StyledTableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Product Name</StyledTableCell>
+                <StyledTableCell>Quantity to Transfer</StyledTableCell>
+                <StyledTableCell>Transfer Type</StyledTableCell>
+                <StyledTableCell>Quantity on Sale</StyledTableCell>
+                <StyledTableCell>Total Sold Price</StyledTableCell>
+                <StyledTableCell>Stock Transfer Number</StyledTableCell>
+                <StyledTableCell>Transferred By</StyledTableCell>
+                <StyledTableCell>Remark</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {transfers.map((transfer) => (
+                <TableRow key={transfer._id}>
+                  <TableCell>{transfer.productId?.name || "N/A"}</TableCell>
+                  <TableCell>{transfer.quantityToTransfer}</TableCell>
+                  <TableCell>{transfer.transferType}</TableCell>
+                  <TableCell>{transfer.quantityOnSale}</TableCell>
+                  <TableCell>{transfer.totalSoldPrice}</TableCell>
+                  <TableCell>{transfer.stockTransferNumber}</TableCell>
+                  <TableCell>{transfer.transferredBy?.name || "N/A"}</TableCell>
+                  <TableCell>{transfer.remark}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={transfers.length}
+            rowsPerPage={10}
+            page={currentPage - 1}
+            onPageChange={(e, page) => setCurrentPage(page + 1)}
+          />
+        </StyledTableContainer>
+      </Root>
+    </MainCard>
   );
 };
 

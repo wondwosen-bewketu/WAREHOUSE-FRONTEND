@@ -61,11 +61,14 @@ function PrivateRoutes() {
             <Route index element={<Navigate replace to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/addProducts" element={<AddProducts />} />
+            <Route path="/listProducts" element={<ListProducts />} />
+
             <Route
               path="productTransferList"
               element={<ProductTransferList />}
             />
             <Route path="/restockTransfer" element={<RestockTransfer />} />
+            <Route path="/restock/:productId" element={<Restock />} />
 
             <Route
               path="/transfertosale/:productId"
