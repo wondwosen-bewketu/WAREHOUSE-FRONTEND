@@ -102,7 +102,7 @@ const TransfersToSale = () => {
 
   return (
     <MainCard
-      title="Transfers to Sale"
+      title="Transfers to Sale History"
       secondary={
         <CardSecondaryAction link={"/addTransfer"} title="Add Transfer" />
       }

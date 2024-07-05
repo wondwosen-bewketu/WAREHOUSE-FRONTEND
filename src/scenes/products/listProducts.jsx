@@ -209,12 +209,12 @@ const ProductList = () => {
                     >
                       Detail
                     </DetailButton>
-                    <IconButton aria-label="edit" color="primary">
+                    {/* <IconButton aria-label="edit" color="primary">
                       <Edit />
                     </IconButton>
                     <IconButton aria-label="delete" color="secondary">
                       <Delete />
-                    </IconButton>
+                    </IconButton> */}
                   </Actions>
                 </StyledCard>
               </Grid>

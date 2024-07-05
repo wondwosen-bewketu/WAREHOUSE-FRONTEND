@@ -93,7 +93,7 @@ const ProductList = () => {
 
   return (
     <MainCard
-      title="Product List"
+      title="Restock From Sale to Stock History"
       secondary={
         <CardSecondaryAction link={"/addProduct"} title="Add Product" />
       }
@@ -116,7 +116,7 @@ const ProductList = () => {
                 <StyledTableCell>Quantity</StyledTableCell>
                 <StyledTableCell>Unit Price</StyledTableCell>
                 <StyledTableCell>Product Price</StyledTableCell>
-                <StyledTableCell>Action</StyledTableCell>
+                {/* <StyledTableCell>Action</StyledTableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -129,14 +129,14 @@ const ProductList = () => {
                     <TableCell>{product.quantity}</TableCell>
                     <TableCell>{product.unitPrice}</TableCell>
                     <TableCell>{product.productPrice}</TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <StyledButton
                         variant="contained"
                         onClick={() => handleSaleButtonClick(product._id)}
                       >
                         Restock
                       </StyledButton>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
             </TableBody>

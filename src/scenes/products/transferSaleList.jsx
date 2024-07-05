@@ -1,13 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Grid,
-  Typography,
-  IconButton,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Paper,
   Table,
   TableBody,
@@ -17,20 +10,11 @@ import {
   TableRow,
   TablePagination,
 } from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import MainCard from "../../ui-component/cards/MainCard";
 import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
 import { fetchProducts } from "../../api/api";
 import { useNavigate } from "react-router-dom";
-
-const DialogTitleWrapper = styled(DialogTitle)(({ theme }) => ({
-  background: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  padding: theme.spacing(2),
-  marginBottom: theme.spacing(2),
-  textAlign: "center",
-}));
 
 const StyledButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#1591ea",
@@ -42,8 +26,6 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();

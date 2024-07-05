@@ -164,7 +164,7 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               <ListItemIcon>
                 <MonetizationOnIcon className={classes.lightBlueIcon} />
               </ListItemIcon>
-              <ListItemText primary="Product List" />
+              <ListItemText primary="Send Product" />
             </ListItem>
 
             <ListItem
@@ -220,7 +220,7 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               <ListItemIcon>
                 <MonetizationOnIcon className={classes.lightBlueIcon} />
               </ListItemIcon>
-              <ListItemText primary="Resale" />
+              <ListItemText primary="Stock Out" />
             </ListItem>
             <ListItem
               className={classes.listItem}
@@ -230,7 +230,7 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               <ListItemIcon>
                 <MonetizationOnIcon className={classes.lightBlueIcon} />
               </ListItemIcon>
-              <ListItemText primary="Restock" />
+              <ListItemText primary="Stock In" />
             </ListItem>
           </>
         )}
