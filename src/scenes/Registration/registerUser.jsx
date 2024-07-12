@@ -1,6 +1,5 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { postUserAsync } from "../../redux/slice/userSlice";
 import {
   TextField,
   Button,
@@ -16,6 +15,8 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { postUserAsync } from "../../redux/slice/userSlice";
+import { getWarehouses } from "../../api/api"; // Adjust import as per your API structure
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -27,16 +28,31 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
 const RegisterUserForm = () => {
   const dispatch = useDispatch();
-
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
     email: "",
     password: "",
     role: "", // Default role
+    warehouseId: "", // Selected warehouse ID
   });
-
   const [loading, setLoading] = useState(false);
+  const [warehouses, setWarehouses] = useState([]);
+
+  // Fetch warehouses on component mount
+  useEffect(() => {
+    const fetchWarehousesData = async () => {
+      try {
+        const data = await getWarehouses();
+        setWarehouses(data); // Assuming API returns an array of warehouses
+      } catch (error) {
+        console.error("Failed to fetch warehouses:", error);
+        toast.error("Failed to fetch warehouses. Please try again.");
+      }
+    };
+
+    fetchWarehousesData();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -50,15 +66,21 @@ const RegisterUserForm = () => {
     setLoading(true);
 
     try {
-      await dispatch(postUserAsync(formData));
+      const dataToSend = { ...formData };
+      if (formData.role !== "superAdmin") {
+        // Add warehouseId to dataToSend if role is not superAdmin
+        dataToSend.warehouseId = formData.warehouseId;
+      }
+
+      await dispatch(postUserAsync(dataToSend));
       toast.success("User registered successfully!");
-      // Reset the form after successful registration
       setFormData({
         fullName: "",
         phoneNumber: "",
         email: "",
         password: "",
         role: "",
+        warehouseId: "", // Reset warehouse selection
       });
     } catch (error) {
       console.error("Error registering user:", error.message);
@@ -70,8 +92,6 @@ const RegisterUserForm = () => {
 
   return (
     <Container component="main" maxWidth="md">
-      {" "}
-      {/* Increased maxWidth to 'sm' */}
       <StyledPaper elevation={3}>
         <Typography
           component="h1"
@@ -138,11 +158,33 @@ const RegisterUserForm = () => {
                   required
                 >
                   <MenuItem value=""></MenuItem>
+                  <MenuItem value="manager">Admin</MenuItem>
                   <MenuItem value="manager">Stock Manager</MenuItem>
                   <MenuItem value="sales">Sales</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
+            {formData.role !== "superAdmin" && (
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel id="warehouse-label">Warehouse</InputLabel>
+                  <Select
+                    labelId="warehouse-label"
+                    label="Warehouse"
+                    name="warehouseId"
+                    value={formData.warehouseId}
+                    onChange={handleChange}
+                    required
+                  >
+                    {warehouses.map((warehouse) => (
+                      <MenuItem key={warehouse._id} value={warehouse._id}>
+                        {warehouse.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            )}
           </Grid>
           <Button
             type="submit"

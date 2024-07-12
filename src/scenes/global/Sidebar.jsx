@@ -84,6 +84,94 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
           variant="subtitle2"
           className={classes.menuHeader}
         ></Typography>
+        {userRole === "superAdmin" && (
+          <>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/dashboard")}
+              button
+            >
+              <ListItemIcon>
+                <DashboardIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/createWarehouse")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Create Warehouse" />
+            </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/WarehouseList")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Warehouses List" />
+            </ListItem>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/registerUser")}
+              button
+            >
+              <ListItemIcon>
+                <MonetizationOnIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Register User" />
+            </ListItem>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/addProducts")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Add Products" />
+            </ListItem>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/listProducts")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Products" />
+            </ListItem>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/SendProduct")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Send Product" />
+            </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/DisplayUsers")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="All Users" />
+            </ListItem>
+          </>
+        )}
+
         {userRole === "admin" && (
           <>
             <ListItem

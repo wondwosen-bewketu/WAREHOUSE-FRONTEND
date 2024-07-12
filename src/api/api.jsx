@@ -30,6 +30,46 @@ export const setFormDataAndAuthHeaders = (formData, token) => {
   };
 };
 
+export const createWarehouse = async (name, location) => {
+  try {
+    setAuthHeaders(); // Optional: If you need to set headers for this operation
+    const response = await api.post("warehouse/create", { name, location });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating warehouse:", error);
+    throw error;
+  }
+};
+
+export const getWarehouses = async () => {
+  try {
+    const response = await api.get(`warehouse/all`);
+    return response.data.warehouses;
+  } catch (error) {
+    console.error("Error fetching warehouses", error);
+    throw error;
+  }
+};
+
+export const sendProductToWarehouse = async (productData) => {
+  try {
+    const response = await api.post("warehouse/send-to-warehouse", productData);
+    return response.data;
+  } catch (error) {
+    console.error("Error sending product to warehouse:", error.message);
+    throw new Error("Failed to send product to warehouse");
+  }
+};
+
+export const getUsers = async () => {
+  try {
+    const response = await api.get("/user/all");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    throw new Error("Failed to fetch users");
+  }
+};
 // Function to change password
 export const changePassword = async (formData, token) => {
   try {
@@ -71,7 +111,7 @@ export const loginUser = async (loginData) => {
 export const addProduct = async (formData) => {
   try {
     setAuthHeaders();
-    const response = await api.post("product/add", formData, {
+    const response = await api.post("warehouse/add", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

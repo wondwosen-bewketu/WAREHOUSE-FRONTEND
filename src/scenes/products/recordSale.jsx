@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#03a9f4",
+      main: "#0080ff",
     },
   },
 });

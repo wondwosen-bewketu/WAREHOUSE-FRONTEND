@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Grid,
   Card,
@@ -11,9 +11,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Paper,
 } from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import MainCard from "../../ui-component/cards/MainCard";
 import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
@@ -43,14 +41,6 @@ const StyledCard = styled(Card)(({ theme }) => ({
     boxShadow: theme.shadows[10],
   },
   background: theme.palette.background.paper,
-}));
-
-const Title = styled(Typography)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
-  textAlign: "center",
-  fontWeight: "bold",
-  color: theme.palette.primary.main,
-  textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
 }));
 
 const CardTitle = styled(Typography)(({ theme }) => ({

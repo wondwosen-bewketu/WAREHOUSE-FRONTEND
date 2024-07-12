@@ -41,11 +41,34 @@ const TransferToSale = React.lazy(() =>
   import("./scenes/products/transferToSale")
 );
 
+const CreateWarehouse = React.lazy(() =>
+  import("./scenes/Warehouse/createWarehouse")
+);
+
+const WarehouseList = React.lazy(() =>
+  import("./scenes/Warehouse/WarehouseList")
+);
+const SendProduct = React.lazy(() => import("./scenes/Warehouse/sendProduct"));
+
+const DisplayUsers = React.lazy(() => import("./scenes/user/Displayusers"));
 function PrivateRoutes() {
   const user = useSelector((state) => state.user);
 
   if (user && user.token) {
     switch (user.user.role) {
+      case "superAdmin":
+        return (
+          <Routes>
+            <Route index element={<Navigate replace to="/dashboard" />} />
+            <Route path="/createWarehouse" element={<CreateWarehouse />} />
+            <Route path="/WarehouseList" element={<WarehouseList />} />
+            <Route path="/registerUser" element={<RegisterUser />} />
+            <Route path="/addProducts" element={<AddProducts />} />
+            <Route path="/listProducts" element={<ListProducts />} />
+            <Route path="/SendProduct" element={<SendProduct />} />
+            <Route path="/DisplayUsers" element={<DisplayUsers />} />
+          </Routes>
+        );
       case "admin":
         return (
           <Routes>
