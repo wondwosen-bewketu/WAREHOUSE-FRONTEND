@@ -1,125 +1,191 @@
-import { useState } from "react";
-import { transferToSale } from "../../api/api";
+import { useState, useEffect } from "react";
 import {
-  TextField,
-  Button,
-  CircularProgress,
-  Typography,
-  Paper,
-  Box,
-} from "@mui/material";
-import { useParams } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+  transferProductToSales,
+  getWarehouses,
+  fetchProducts,
+} from "../../api/api";
 
-const TransferToSale = () => {
-  const { productId } = useParams();
-  const [quantityToTransfer, setQuantityToTransfer] = useState("");
-  const [stockTransferNumber, setStockTransferNumber] = useState("");
-  const [remark, setRemark] = useState("");
-  const [stockTransferImage, setStockTransferImage] = useState(null);
+const TransferProduct = () => {
+  const [formData, setFormData] = useState({
+    productId: "",
+    quantity: "",
+    warehouseId: "",
+    salesUserId: "",
+    location: "",
+    stockTransferNumber: "",
+  });
+  const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [warehouses, setWarehouses] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [warehousesData, productsData] = await Promise.all([
+          getWarehouses(),
+          fetchProducts(),
+        ]);
+        setWarehouses(warehousesData);
+        setProducts(productsData);
+      } catch (error) {
+        setMessage(error.message);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setImage(e.target.files[0]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setMessage("");
+    const data = new FormData();
+    for (const key in formData) {
+      data.append(key, formData[key]);
+    }
+    if (image) {
+      data.append("stockTransferImage", image);
+    }
 
     try {
-      const formData = {
-        quantityToTransfer: parseInt(quantityToTransfer, 10), // Ensure quantity is an integer
-        stockTransferNumber,
-        remark,
-        stockTransferImage,
-      };
-
-      const response = await transferToSale(productId, formData);
-      toast.success("Stock transfer successful!");
-      setQuantityToTransfer("");
-      setStockTransferNumber("");
-      setRemark("");
-      setStockTransferImage(null);
+      const response = await transferProductToSales(data);
+      setMessage(response.message);
     } catch (error) {
-      toast.error(error.error || "Stock transfer failed");
+      setMessage(error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const styles = {
-    paper: {
-      maxWidth: "900px",
-      margin: "auto",
-      padding: "20px",
-      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-    },
-    button: {
-      backgroundColor: "#03a9f4",
-      color: "#fff",
-      marginTop: "20px",
-    },
-    input: {
-      marginBottom: "16px",
-    },
+  const formStyle = {
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: "600px",
+    margin: "auto",
+    padding: "1rem",
+    borderRadius: "8px",
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  };
+
+  const inputStyle = {
+    marginBottom: "1rem",
+    padding: "0.5rem",
+    borderRadius: "4px",
+    border: "1px solid #ddd",
+  };
+
+  const buttonStyle = {
+    padding: "0.5rem",
+    borderRadius: "4px",
+    border: "none",
+    backgroundColor: "#1591ea",
+    color: "white",
+    cursor: "pointer",
+  };
+
+  const selectStyle = {
+    ...inputStyle,
+    cursor: "pointer",
   };
 
   return (
-    <Paper elevation={3} style={styles.paper}>
-      <Box p={2}>
-        <Typography variant="h5" color="primary" gutterBottom align="center">
-          Transfer Product to Sale
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Quantity to Transfer"
-            value={quantityToTransfer}
-            onChange={(e) => setQuantityToTransfer(e.target.value)}
-            required
-            fullWidth
-            margin="normal"
-            type="number"
-            style={styles.input}
-          />
-          <TextField
-            label="Stock Transfer Number"
-            value={stockTransferNumber}
-            onChange={(e) => setStockTransferNumber(e.target.value)}
-            required
-            fullWidth
-            margin="normal"
-            style={styles.input}
-          />
-          <TextField
-            label="Remark"
-            value={remark}
-            onChange={(e) => setRemark(e.target.value)}
-            fullWidth
-            margin="normal"
-            style={styles.input}
-          />
-          <input
-            type="file"
-            onChange={(e) => setStockTransferImage(e.target.files[0])}
-            accept="image/*"
-            style={styles.input}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            style={styles.button}
-            disabled={loading}
-            fullWidth
-          >
-            {loading ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              "Transfer to Sale"
-            )}
-          </Button>
-        </form>
-      </Box>
-      <ToastContainer />
-    </Paper>
+    <form style={formStyle} onSubmit={handleSubmit}>
+      <h2 style={{ textAlign: "center", color: "#1591ea" }}>
+        Transfer Product
+      </h2>
+      <select
+        name="productId"
+        value={formData.productId}
+        onChange={handleChange}
+        style={selectStyle}
+      >
+        <option value="" disabled>
+          Select Product
+        </option>
+        {products.map((product) => (
+          <option key={product._id} value={product._id}>
+            {product.name}
+          </option>
+        ))}
+      </select>
+      <input
+        type="number"
+        name="quantity"
+        placeholder="Quantity"
+        value={formData.quantity}
+        onChange={handleChange}
+        style={inputStyle}
+      />
+      <select
+        name="warehouseId"
+        value={formData.warehouseId}
+        onChange={handleChange}
+        style={selectStyle}
+      >
+        <option value="" disabled>
+          Select Warehouse
+        </option>
+        {warehouses.map((warehouse) => (
+          <option key={warehouse._id} value={warehouse._id}>
+            {warehouse.name}
+          </option>
+        ))}
+      </select>
+      <input
+        type="text"
+        name="salesUserId"
+        placeholder="Sales User ID"
+        value={formData.salesUserId}
+        onChange={handleChange}
+        style={inputStyle}
+      />
+      <input
+        type="text"
+        name="location"
+        placeholder="Location"
+        value={formData.location}
+        onChange={handleChange}
+        style={inputStyle}
+      />
+      <input
+        type="text"
+        name="stockTransferNumber"
+        placeholder="Stock Transfer Number"
+        value={formData.stockTransferNumber}
+        onChange={handleChange}
+        style={inputStyle}
+      />
+      <input
+        type="file"
+        name="stockTransferImage"
+        onChange={handleFileChange}
+        style={inputStyle}
+      />
+      <button type="submit" style={buttonStyle} disabled={loading}>
+        {loading ? "Loading..." : "Transfer Product"}
+      </button>
+      {message && (
+        <p
+          style={{
+            textAlign: "center",
+            color: message.includes("successfully") ? "green" : "red",
+          }}
+        >
+          {message}
+        </p>
+      )}
+    </form>
   );
 };
 
-export default TransferToSale;
+export default TransferProduct;

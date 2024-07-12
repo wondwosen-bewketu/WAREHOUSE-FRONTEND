@@ -124,7 +124,7 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               button
             >
               <ListItemIcon>
-                <MonetizationOnIcon className={classes.lightBlueIcon} />
+                <ListAltIcon className={classes.lightBlueIcon} />{" "}
               </ListItemIcon>
               <ListItemText primary="Register User" />
             </ListItem>
@@ -169,6 +169,17 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               </ListItemIcon>
               <ListItemText primary="All Users" />
             </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/WarehouseTransaction")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Transaction" />
+            </ListItem>
           </>
         )}
 
@@ -198,7 +209,7 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
 
             <ListItem
               className={classes.listItem}
-              onClick={() => handleItemClick("/registerUser")}
+              onClick={() => handleItemClick("/AdminRegisterUser")}
               button
             >
               <ListItemIcon>
@@ -246,7 +257,7 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
 
             <ListItem
               className={classes.listItem}
-              onClick={() => handleItemClick("/transferSaleList")}
+              onClick={() => handleItemClick("/TransferToSale")}
               button
             >
               <ListItemIcon>

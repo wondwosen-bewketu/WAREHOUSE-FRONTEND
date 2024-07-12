@@ -16,7 +16,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { postUserAsync } from "../../redux/slice/userSlice";
-import { getWarehouses } from "../../api/api"; // Adjust import as per your API structure
+import { getWarehouses } from "../../api/api";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -158,7 +158,8 @@ const RegisterUserForm = () => {
                   required
                 >
                   <MenuItem value=""></MenuItem>
-                  <MenuItem value="admin">Admin</MenuItem>
+                  <MenuItem value="manager">Stock Manager</MenuItem>
+                  <MenuItem value="sales">Sales</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

@@ -61,6 +61,12 @@ export const sendProductToWarehouse = async (productData) => {
   }
 };
 
+// Function to fetch all transactions
+export const getAllTransactions = async () => {
+  setAuthHeaders();
+  const response = await api.get("warehouse/transactions");
+  return response.data;
+};
 export const getUsers = async () => {
   try {
     const response = await api.get("/user/all");
@@ -136,6 +142,28 @@ export const fetchProducts = async () => {
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
+  }
+};
+
+export const transferProductToSales = async (data) => {
+  try {
+    setAuthHeaders();
+    const response = await api.post("/warehouse/transferProductToSales", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error transferring product to sales:", error.message);
+    throw new Error("Failed to transfer product to sales");
+  }
+};
+
+export const restockProduct = async (data) => {
+  try {
+    setAuthHeaders();
+    const response = await api.post("/warehouse/restockProduct", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error restocking product:", error.message);
+    throw new Error("Failed to restock product");
   }
 };
 

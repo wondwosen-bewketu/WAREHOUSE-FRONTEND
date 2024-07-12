@@ -51,6 +51,14 @@ const WarehouseList = React.lazy(() =>
 const SendProduct = React.lazy(() => import("./scenes/Warehouse/sendProduct"));
 
 const DisplayUsers = React.lazy(() => import("./scenes/user/Displayusers"));
+const WarehouseTransaction = React.lazy(() =>
+  import("./scenes/Warehouse/transaction")
+);
+
+const AdminRegisterUser = React.lazy(() =>
+  import("./scenes/Registration/AdminRegisterUser")
+);
+
 function PrivateRoutes() {
   const user = useSelector((state) => state.user);
 
@@ -67,13 +75,17 @@ function PrivateRoutes() {
             <Route path="/listProducts" element={<ListProducts />} />
             <Route path="/SendProduct" element={<SendProduct />} />
             <Route path="/DisplayUsers" element={<DisplayUsers />} />
+            <Route
+              path="/WarehouseTransaction"
+              element={<WarehouseTransaction />}
+            />
           </Routes>
         );
       case "admin":
         return (
           <Routes>
             <Route index element={<Navigate replace to="/dashboard" />} />
-            <Route path="/registerUser" element={<RegisterUser />} />
+            <Route path="/AdminRegisterUser" element={<AdminRegisterUser />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/listProducts" element={<ListProducts />} />
           </Routes>
@@ -86,10 +98,7 @@ function PrivateRoutes() {
             <Route path="/addProducts" element={<AddProducts />} />
             <Route path="/listProducts" element={<ListProducts />} />
 
-            <Route
-              path="productTransferList"
-              element={<ProductTransferList />}
-            />
+            <Route path="TransferToSale" element={<TransferToSale />} />
             <Route path="/restockTransfer" element={<RestockTransfer />} />
             <Route path="/restock/:productId" element={<Restock />} />
 
