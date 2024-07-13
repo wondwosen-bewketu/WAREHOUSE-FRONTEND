@@ -51,6 +51,16 @@ export const getWarehouses = async () => {
   }
 };
 
+export const fetchSalesUsers = async () => {
+  try {
+    const response = await api.get("/user/sales-users");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch sales users", error);
+    throw error;
+  }
+};
+
 export const sendProductToWarehouse = async (productData) => {
   try {
     const response = await api.post("warehouse/send-to-warehouse", productData);

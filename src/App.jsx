@@ -101,7 +101,6 @@ function PrivateRoutes() {
 
             <Route path="TransferToSale" element={<TransferToSale />} />
             <Route path="/restockTransfer" element={<RestockTransfer />} />
-            <Route path="/restock/:productId" element={<Restock />} />
 
             <Route
               path="/transfertosale/:productId"
@@ -117,6 +116,7 @@ function PrivateRoutes() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/restock/:productId" element={<Restock />} />
             <Route path="/recordsale/:productId" element={<RecordSale />} />
+            <Route path="/restock" element={<Restock />} />
             <Route path="/salesProductList" element={<SalesProductList />} />
             <Route path="/restockTransferList" element={<RestockList />} />
             <Route

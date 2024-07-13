@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import {
   transferProductToSales,
-  getWarehouses,
   fetchProducts,
+  fetchSalesUsers, // New function to fetch sales users
 } from "../../api/api";
 
 const TransferProduct = () => {
@@ -17,23 +17,31 @@ const TransferProduct = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [warehouses, setWarehouses] = useState([]);
   const [products, setProducts] = useState([]);
+  const [salesUsers, setSalesUsers] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [warehousesData, productsData] = await Promise.all([
-          getWarehouses(),
-          fetchProducts(),
-        ]);
-        setWarehouses(warehousesData);
+        const productsData = await fetchProducts();
+        const salesUsersData = await fetchSalesUsers();
         setProducts(productsData);
+        setSalesUsers(salesUsersData);
       } catch (error) {
         setMessage(error.message);
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const warehouseId = localStorage.getItem("warehouse");
+    if (warehouseId) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        warehouseId,
+      }));
+    }
   }, []);
 
   const handleChange = (e) => {
@@ -42,6 +50,10 @@ const TransferProduct = () => {
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]);
+  };
+
+  const handleSalesUserSelect = (e) => {
+    setFormData({ ...formData, salesUserId: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -127,28 +139,20 @@ const TransferProduct = () => {
         style={inputStyle}
       />
       <select
-        name="warehouseId"
-        value={formData.warehouseId}
-        onChange={handleChange}
+        name="salesUserId"
+        value={formData.salesUserId}
+        onChange={handleSalesUserSelect}
         style={selectStyle}
       >
         <option value="" disabled>
-          Select Warehouse
+          Select Sales User
         </option>
-        {warehouses.map((warehouse) => (
-          <option key={warehouse._id} value={warehouse._id}>
-            {warehouse.name}
+        {salesUsers.map((user) => (
+          <option key={user._id} value={user._id}>
+            {user.fullName}
           </option>
         ))}
       </select>
-      <input
-        type="text"
-        name="salesUserId"
-        placeholder="Sales User ID"
-        value={formData.salesUserId}
-        onChange={handleChange}
-        style={inputStyle}
-      />
       <input
         type="text"
         name="location"

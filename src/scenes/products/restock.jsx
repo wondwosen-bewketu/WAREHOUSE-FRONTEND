@@ -1,141 +1,189 @@
-import React, { useState } from "react";
-import { transferToSale } from "../../api/api";
-import {
-  TextField,
-  Button,
-  CircularProgress,
-  Typography,
-  Container,
-  Box,
-  Grid,
-} from "@mui/material";
-import { useParams } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { styled } from "@mui/system";
+import { useState, useEffect } from "react";
+import { restockProduct, fetchProducts, fetchSalesUsers } from "../../api/api";
 
-const TransferToSale = () => {
-  const { productId } = useParams();
-  const [quantityToTransfer, setQuantityToTransfer] = useState("");
-  const [stockTransferNumber, setStockTransferNumber] = useState("");
-  const [remark, setRemark] = useState("");
-  const [stockTransferImage, setStockTransferImage] = useState(null);
+const RestockProduct = () => {
+  const [formData, setFormData] = useState({
+    productId: "",
+    quantity: "",
+    warehouseId: "",
+    salesUserId: "",
+    location: "",
+    stockTransferNumber: "",
+  });
+  const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [products, setProducts] = useState([]);
+  const [salesUsers, setSalesUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const productsData = await fetchProducts();
+        const salesUsersData = await fetchSalesUsers();
+        setProducts(productsData);
+        setSalesUsers(salesUsersData);
+      } catch (error) {
+        setMessage(error.message);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const warehouseId = localStorage.getItem("warehouse");
+    if (warehouseId) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        warehouseId,
+      }));
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
+  const handleSalesUserSelect = (e) => {
+    setFormData({ ...formData, salesUserId: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setMessage("");
+    const data = new FormData();
+    for (const key in formData) {
+      data.append(key, formData[key]);
+    }
+    if (image) {
+      data.append("stockTransferImage", image);
+    }
 
     try {
-      const formData = {
-        quantityToTransfer: parseInt(quantityToTransfer, 10), // Ensure quantity is an integer
-        stockTransferNumber,
-        remark,
-        stockTransferImage,
-      };
-
-      const response = await transferToSale(productId, formData);
-      toast.success("Stock transfer successful!");
-      setQuantityToTransfer("");
-      setStockTransferNumber("");
-      setRemark("");
-      setStockTransferImage(null);
+      const response = await restockProduct(data);
+      setMessage(response.message);
     } catch (error) {
-      toast.error(error.error || "Stock transfer failed");
+      setMessage(error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const StyledContainer = styled(Container)(({ theme }) => ({
+  const formStyle = {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "100vh",
-    backgroundColor: theme.palette.background.default,
-    padding: theme.spacing(4),
-    marginTop: "-130px",
-  }));
+    flexDirection: "column",
+    maxWidth: "600px",
+    margin: "auto",
+    padding: "1rem",
+    borderRadius: "8px",
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  };
 
-  const StyledForm = styled(Box)(({ theme }) => ({
-    width: "100%",
-    maxWidth: "800px",
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(4),
-    borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[4],
-  }));
+  const inputStyle = {
+    marginBottom: "1rem",
+    padding: "0.5rem",
+    borderRadius: "4px",
+    border: "1px solid #ddd",
+  };
 
-  const StyledButton = styled(Button)(({ theme }) => ({
+  const buttonStyle = {
+    padding: "0.5rem",
+    borderRadius: "4px",
+    border: "none",
     backgroundColor: "#1591ea",
-    color: theme.palette.primary.contrastText,
-    "&:hover": {
-      backgroundColor: theme.palette.primary.dark,
-    },
-  }));
+    color: "white",
+    cursor: "pointer",
+  };
+
+  const selectStyle = {
+    ...inputStyle,
+    cursor: "pointer",
+  };
 
   return (
-    <StyledContainer>
-      <StyledForm component="form" onSubmit={handleSubmit}>
-        <Typography variant="h4" color="primary" gutterBottom>
-          Product Restock
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TextField
-              label="Quantity to Transfer"
-              value={quantityToTransfer}
-              onChange={(e) => setQuantityToTransfer(e.target.value)}
-              required
-              fullWidth
-              type="number"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Stock Transfer Number"
-              value={stockTransferNumber}
-              onChange={(e) => setStockTransferNumber(e.target.value)}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Remark"
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <input
-              type="file"
-              onChange={(e) => setStockTransferImage(e.target.files[0])}
-              accept="image/*"
-              style={{ marginTop: 16, marginBottom: 16 }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <StyledButton
-              type="submit"
-              color="primary"
-              variant="contained"
-              disabled={loading}
-              fullWidth
-            >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Transfer to Sale"
-              )}
-            </StyledButton>
-          </Grid>
-        </Grid>
-      </StyledForm>
-      <ToastContainer />
-    </StyledContainer>
+    <form style={formStyle} onSubmit={handleSubmit}>
+      <h2 style={{ textAlign: "center", color: "#1591ea" }}>Restock Product</h2>
+      <select
+        name="productId"
+        value={formData.productId}
+        onChange={handleChange}
+        style={selectStyle}
+      >
+        <option value="" disabled>
+          Select Product
+        </option>
+        {products.map((product) => (
+          <option key={product._id} value={product._id}>
+            {product.name}
+          </option>
+        ))}
+      </select>
+      <input
+        type="number"
+        name="quantity"
+        placeholder="Quantity"
+        value={formData.quantity}
+        onChange={handleChange}
+        style={inputStyle}
+      />
+      <select
+        name="salesUserId"
+        value={formData.salesUserId}
+        onChange={handleSalesUserSelect}
+        style={selectStyle}
+      >
+        <option value="" disabled>
+          Select Sales User
+        </option>
+        {salesUsers.map((user) => (
+          <option key={user._id} value={user._id}>
+            {user.fullName}
+          </option>
+        ))}
+      </select>
+      <input
+        type="text"
+        name="location"
+        placeholder="Location"
+        value={formData.location}
+        onChange={handleChange}
+        style={inputStyle}
+      />
+      <input
+        type="text"
+        name="stockTransferNumber"
+        placeholder="Stock Transfer Number"
+        value={formData.stockTransferNumber}
+        onChange={handleChange}
+        style={inputStyle}
+      />
+      <input
+        type="file"
+        name="stockTransferImage"
+        onChange={handleFileChange}
+        style={inputStyle}
+      />
+      <button type="submit" style={buttonStyle} disabled={loading}>
+        {loading ? "Loading..." : "Restock Product"}
+      </button>
+      {message && (
+        <p
+          style={{
+            textAlign: "center",
+            color: message.includes("successfully") ? "green" : "red",
+          }}
+        >
+          {message}
+        </p>
+      )}
+    </form>
   );
 };
 
-export default TransferToSale;
+export default RestockProduct;
