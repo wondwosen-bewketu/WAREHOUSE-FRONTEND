@@ -77,7 +77,7 @@ export const deleteUserById = async (userId) => {
   } catch (error) {
     // Handle the error appropriately
     console.error("Error deleting user by ID:", error);
-    throw error; // Or handle the error differently based on your needs
+    throw error; // Or handle the error differently based on your
   }
 };
 
