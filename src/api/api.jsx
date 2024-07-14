@@ -30,10 +30,10 @@ export const setFormDataAndAuthHeaders = (formData, token) => {
   };
 };
 
-export const createWarehouse = async (name, location) => {
+export const createWarehouse = async (formData) => {
   try {
     setAuthHeaders(); // Optional: If you need to set headers for this operation
-    const response = await api.post("warehouse/create", { name, location });
+    const response = await api.post("warehouse/create", formData);
     return response.data;
   } catch (error) {
     console.error("Error creating warehouse:", error);
@@ -61,6 +61,50 @@ export const fetchSalesUsers = async () => {
   }
 };
 
+// Function to fetch users by warehouse ID
+export const fetchUsersByWarehouse = async (warehouseId) => {
+  try {
+    const response = await api.get(`warehouse/${warehouseId}/users`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response.data.message || error.message);
+  }
+};
+export const deleteUserById = async (userId) => {
+  try {
+    const response = await axios.delete(`${userId}`);
+    return response.data;
+  } catch (error) {
+    // Handle the error appropriately
+    console.error("Error deleting user by ID:", error);
+    throw error; // Or handle the error differently based on your needs
+  }
+};
+
+export const getWarehouseById = async (id) => {
+  try {
+    const response = await api.get(`warehouse/${id}/products`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching warehouse:", error);
+    throw error;
+  }
+};
+
+// Fetch warehouses associated with admin by ID
+export const getAdminsWarehouseProducts = async (adminId) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}warehouse/${adminId}/warehouses`
+    );
+    console.log("API response:", response); // Add logging for debugging
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching admin's warehouse products:", error);
+    throw error;
+  }
+};
+
 export const sendProductToWarehouse = async (productData) => {
   try {
     const response = await api.post("warehouse/send-to-warehouse", productData);
@@ -68,6 +112,26 @@ export const sendProductToWarehouse = async (productData) => {
   } catch (error) {
     console.error("Error sending product to warehouse:", error.message);
     throw new Error("Failed to send product to warehouse");
+  }
+};
+
+export const requestProducts = async (productData) => {
+  try {
+    const response = await api.post("request/new", productData);
+    return response.data;
+  } catch (error) {
+    console.error("Error request product:", error.message);
+    throw new Error("Failed to request product");
+  }
+};
+
+export const fetchProductRequests = async () => {
+  try {
+    const response = await api.get(`request/all`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching product requests:", error);
+    throw error;
   }
 };
 

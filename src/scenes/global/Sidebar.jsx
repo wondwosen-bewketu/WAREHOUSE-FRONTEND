@@ -180,6 +180,17 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               </ListItemIcon>
               <ListItemText primary="Transaction" />
             </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/AllProductRequests")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Product Requests" />
+            </ListItem>
           </>
         )}
 
@@ -217,6 +228,36 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               </ListItemIcon>
               <ListItemText primary="Register User" />
             </ListItem>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/TransferToSale")}
+              button
+            >
+              <ListItemIcon>
+                <MonetizationOnIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Send Product" />
+            </ListItem>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/usersOnWarehouse")}
+              button
+            >
+              <ListItemIcon>
+                <MonetizationOnIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Users" />
+            </ListItem>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/Productrequest")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Product Request" />
+            </ListItem>
           </>
         )}
 
@@ -231,28 +272,6 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
                 <DashboardIcon className={classes.lightBlueIcon} />
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
-            </ListItem>
-
-            <ListItem
-              className={classes.listItem}
-              onClick={() => handleItemClick("/listProducts")}
-              button
-            >
-              <ListItemIcon>
-                <ListAltIcon className={classes.lightBlueIcon} />
-              </ListItemIcon>
-              <ListItemText primary="Products" />
-            </ListItem>
-
-            <ListItem
-              className={classes.listItem}
-              onClick={() => handleItemClick("/addProducts")}
-              button
-            >
-              <ListItemIcon>
-                <ListAltIcon className={classes.lightBlueIcon} />
-              </ListItemIcon>
-              <ListItemText primary="Add Products" />
             </ListItem>
 
             <ListItem

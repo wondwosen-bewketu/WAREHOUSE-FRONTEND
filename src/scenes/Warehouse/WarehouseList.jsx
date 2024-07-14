@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   Grid,
   Card,
@@ -40,6 +42,7 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 const WarehouseList = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchWarehouses = async () => {
@@ -58,7 +61,7 @@ const WarehouseList = () => {
 
   const handleWarehouseClick = (warehouseId) => {
     // Assuming opening in a new window for simplicity, you can also use modals or other UI components
-    window.open(`/warehouse/${warehouseId}/products`, "_blank");
+    navigate(`/warehouse/${warehouseId}/products`);
   };
 
   if (loading) {

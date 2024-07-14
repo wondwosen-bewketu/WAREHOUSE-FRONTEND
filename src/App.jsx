@@ -59,6 +59,26 @@ const AdminRegisterUser = React.lazy(() =>
   import("./scenes/Registration/AdminRegisterUser")
 );
 
+const WarehouseDetail = React.lazy(() =>
+  import("./scenes/Warehouse/warehouseDetail")
+);
+
+const AdminWarehouse = React.lazy(() =>
+  import("./scenes/Warehouse/AdminWarehouse")
+);
+
+const ProductRequest = React.lazy(() =>
+  import("./scenes/products/productRequest")
+);
+
+const AllProductRequests = React.lazy(() =>
+  import("./scenes/products/AllProductRequests")
+);
+
+const UsersOnWarehouse = React.lazy(() =>
+  import("./scenes/Warehouse/UsersOnWarehouse")
+);
+
 function PrivateRoutes() {
   const user = useSelector((state) => state.user);
 
@@ -71,6 +91,10 @@ function PrivateRoutes() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/createWarehouse" element={<CreateWarehouse />} />
             <Route path="/WarehouseList" element={<WarehouseList />} />
+            <Route
+              path="/warehouse/:id/products"
+              element={<WarehouseDetail />}
+            />
             <Route path="/registerUser" element={<RegisterUser />} />
             <Route path="/addProducts" element={<AddProducts />} />
             <Route path="/listProducts" element={<ListProducts />} />
@@ -80,6 +104,10 @@ function PrivateRoutes() {
               path="/WarehouseTransaction"
               element={<WarehouseTransaction />}
             />
+            <Route
+              path="/AllProductRequests"
+              element={<AllProductRequests />}
+            />
           </Routes>
         );
       case "admin":
@@ -88,7 +116,11 @@ function PrivateRoutes() {
             <Route index element={<Navigate replace to="/dashboard" />} />
             <Route path="/AdminRegisterUser" element={<AdminRegisterUser />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/listProducts" element={<ListProducts />} />
+            <Route path="/listProducts" element={<AdminWarehouse />} />
+            <Route path="TransferToSale" element={<TransferToSale />} />
+            <Route path="UsersOnWarehouse" element={<UsersOnWarehouse />} />
+
+            <Route path="/ProductRequest" element={<ProductRequest />} />UsersOnWarehouse
           </Routes>
         );
       case "manager": // Combine cases for Call Center and General Manager
@@ -96,9 +128,6 @@ function PrivateRoutes() {
           <Routes>
             <Route index element={<Navigate replace to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/addProducts" element={<AddProducts />} />
-            <Route path="/listProducts" element={<ListProducts />} />
-
             <Route path="TransferToSale" element={<TransferToSale />} />
             <Route path="/restockTransfer" element={<RestockTransfer />} />
 

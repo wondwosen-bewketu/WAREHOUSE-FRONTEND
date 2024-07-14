@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   transferProductToSales,
   fetchProducts,
-  fetchSalesUsers, // New function to fetch sales users
+  fetchSalesUsers,
 } from "../../api/api";
 
 const TransferProduct = () => {
@@ -50,10 +50,6 @@ const TransferProduct = () => {
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]);
-  };
-
-  const handleSalesUserSelect = (e) => {
-    setFormData({ ...formData, salesUserId: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -141,7 +137,7 @@ const TransferProduct = () => {
       <select
         name="salesUserId"
         value={formData.salesUserId}
-        onChange={handleSalesUserSelect}
+        onChange={handleChange}
         style={selectStyle}
       >
         <option value="" disabled>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { createWarehouse } from "../../api/api";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -6,11 +6,15 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const WarehouseForm = () => {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
+  const [adminFullName, setAdminFullName] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPhoneNumber, setAdminPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -19,10 +23,28 @@ const WarehouseForm = () => {
     setLoading(true);
 
     try {
-      const response = await createWarehouse(name, location);
+      const formData = {
+        name: name.trim(),
+        location: location.trim(),
+        adminFullName,
+        adminEmail,
+        adminPhoneNumber,
+      };
+
+      const response = await createWarehouse(formData);
       setMessage(response.message);
+
+      // Reset form fields
+      setName("");
+      setLocation("");
+      setAdminFullName("");
+      setAdminEmail("");
+      setAdminPhoneNumber("");
+
+      // Display success message using Toastify
+      toast.success("Warehouse and admin user created successfully");
     } catch (error) {
-      setMessage("Error creating warehouse");
+      setMessage("Error creating warehouse and admin");
       console.error(error);
     } finally {
       setLoading(false);
@@ -69,6 +91,31 @@ const WarehouseForm = () => {
               required
               sx={{ mb: 2 }}
             />
+
+            <TextField
+              label="Admin Full Name"
+              value={adminFullName}
+              onChange={(e) => setAdminFullName(e.target.value)}
+              required
+              sx={{ mb: 2 }}
+            />
+
+            <TextField
+              label="Admin Email"
+              value={adminEmail}
+              onChange={(e) => setAdminEmail(e.target.value)}
+              required
+              sx={{ mb: 2 }}
+            />
+
+            <TextField
+              label="Admin Phone Number"
+              value={adminPhoneNumber}
+              onChange={(e) => setAdminPhoneNumber(e.target.value)}
+              required
+              sx={{ mb: 2 }}
+            />
+
             <Button
               type="submit"
               variant="contained"
