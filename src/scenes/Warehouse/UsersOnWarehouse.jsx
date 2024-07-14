@@ -75,8 +75,11 @@ const UsersByWarehouse = () => {
       const getUsers = async () => {
         try {
           const data = await fetchUsersByWarehouse(warehouseId);
-          setUsers(data.filter((user) => user._id !== user._id)); // Filter out logged-in user
+          console.log("Fetched users:", data); // Log fetched users
+
+          setUsers(data);
         } catch (error) {
+          console.error("Error fetching users:", error);
           setError("Failed to fetch users.");
         } finally {
           setLoading(false);
@@ -85,6 +88,7 @@ const UsersByWarehouse = () => {
 
       getUsers();
     } catch (parseError) {
+      console.error("Error parsing user data:", parseError);
       setError("Error parsing user data from localStorage.");
       setLoading(false);
     }
