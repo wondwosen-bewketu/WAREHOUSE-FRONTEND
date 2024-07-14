@@ -222,7 +222,7 @@ export const fetchProducts = async () => {
 export const transferProductToSales = async (data) => {
   try {
     setAuthHeaders();
-    const response = await api.post("/warehouse/transferProductToSales", data);
+    const response = await api.post("sales/transfer", data);
     return response.data;
   } catch (error) {
     console.error("Error transferring product to sales:", error.message);
