@@ -35,7 +35,10 @@ const TransferProduct = () => {
   }, []);
 
   useEffect(() => {
-    const warehouseId = localStorage.getItem("warehouse");
+    const user = localStorage.getItem("user");
+    const parsedUser = user ? JSON.parse(user) : null;
+    const warehouseId = parsedUser ? parsedUser.warehouse : null;
+
     if (warehouseId) {
       setFormData((prevFormData) => ({
         ...prevFormData,
@@ -56,6 +59,20 @@ const TransferProduct = () => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+
+    // Check if all required fields are filled
+    if (
+      !formData.productId ||
+      !formData.quantity ||
+      !formData.salesUserId ||
+      !formData.location ||
+      !formData.stockTransferNumber
+    ) {
+      setMessage("Please fill in all required fields.");
+      setLoading(false);
+      return;
+    }
+
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);
@@ -64,11 +81,20 @@ const TransferProduct = () => {
       data.append("stockTransferImage", image);
     }
 
+    // Log the FormData contents
+    for (let pair of data.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
+
     try {
       const response = await transferProductToSales(data);
       setMessage(response.message);
     } catch (error) {
-      setMessage(error.message);
+      console.error(
+        "Error transferring product to sales:",
+        error.response?.data || error.message
+      );
+      setMessage(error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
     }
@@ -116,6 +142,7 @@ const TransferProduct = () => {
         value={formData.productId}
         onChange={handleChange}
         style={selectStyle}
+        required
       >
         <option value="" disabled>
           Select Product
@@ -133,12 +160,14 @@ const TransferProduct = () => {
         value={formData.quantity}
         onChange={handleChange}
         style={inputStyle}
+        required
       />
       <select
         name="salesUserId"
         value={formData.salesUserId}
         onChange={handleChange}
         style={selectStyle}
+        required
       >
         <option value="" disabled>
           Select Sales User
@@ -156,6 +185,7 @@ const TransferProduct = () => {
         value={formData.location}
         onChange={handleChange}
         style={inputStyle}
+        required
       />
       <input
         type="text"
@@ -164,6 +194,7 @@ const TransferProduct = () => {
         value={formData.stockTransferNumber}
         onChange={handleChange}
         style={inputStyle}
+        required
       />
       <input
         type="file"
