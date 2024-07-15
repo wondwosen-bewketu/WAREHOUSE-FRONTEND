@@ -1,110 +1,81 @@
-import { useEffect, useState } from "react";
-import {
-  Button,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import MainCard from "../../ui-component/cards/MainCard";
-import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
-import { fetchProducts } from "../../api/api";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { DataGrid } from "@mui/x-data-grid";
+import { Box, Typography, Paper } from "@mui/material";
+import { getTransferToSalesTransactionsByWarehouse } from "../../api/api";
 
-const StyledButton = styled(Button)(({ theme }) => ({
-  backgroundColor: "#1591ea",
-  color: theme.palette.common.white,
-  "&:hover": {
-    backgroundColor: theme.palette.primary.dark,
-  },
-}));
+const columns = [
+  { field: "id", headerName: "ID", width: 100 },
+  { field: "productName", headerName: "Product Name", width: 200 },
+  { field: "category", headerName: "Category", width: 150 },
+  { field: "unit", headerName: "Unit", width: 100 },
+  { field: "unitPrice", headerName: "Unit Price", width: 150 },
+  { field: "quantity", headerName: "Quantity", width: 130 },
+  { field: "salesUserName", headerName: "Sales User", width: 200 },
+  { field: "date", headerName: "Date", width: 200 },
+];
 
-const ProductList = () => {
-  const [products, setProducts] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const navigate = useNavigate();
+const TransactionsPage = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const getProducts = async () => {
-      const data = await fetchProducts();
-      setProducts(data);
+    const fetchTransactions = async () => {
+      try {
+        const warehouseId = JSON.parse(localStorage.getItem("user")).warehouse; // Assuming the warehouse ID is stored in user object
+        const data = await getTransferToSalesTransactionsByWarehouse(
+          warehouseId
+        );
+
+        const transformedData = data.map((transaction, index) => ({
+          id: index + 1,
+          productName: transaction.productId.name,
+          category: transaction.productId.category,
+          unit: transaction.productId.unit,
+          unitPrice: transaction.productId.unitPrice,
+          quantity: transaction.quantity,
+          salesUserName: transaction.salesUserId.fullName,
+          date: new Date(transaction.date).toLocaleString(),
+        }));
+
+        setTransactions(transformedData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    getProducts();
+    fetchTransactions();
   }, []);
 
-  const handleSendButtonClick = (productId) => {
-    navigate(`/transfertosale/${productId}`);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
-    <MainCard
-      title="Product List"
-      secondary={
-        <CardSecondaryAction link={"/addProduct"} title="Add Product" />
-      }
+    <Box
+      sx={{
+        height: "100vh",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f5f5f5",
+      }}
     >
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Product Name</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Quantity</TableCell>
-              <TableCell>Unit Price</TableCell>
-              <TableCell>Product Price</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((product) => (
-                <TableRow key={product._id}>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell>{product.quantity}</TableCell>
-                  <TableCell>{product.unitPrice}</TableCell>
-                  <TableCell>{product.productPrice}</TableCell>
-                  <TableCell>
-                    <StyledButton
-                      variant="contained"
-                      onClick={() => handleSendButtonClick(product._id)}
-                    >
-                      Send
-                    </StyledButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={products.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+      <Paper elevation={3} sx={{ p: 2, width: "90%", height: "90%" }}>
+        <Typography variant="h4" gutterBottom>
+          Transfer to Sales Transactions
+        </Typography>
+        <DataGrid
+          rows={transactions}
+          columns={columns}
+          pageSize={10}
+          rowsPerPageOptions={[10, 20, 50]}
         />
-      </TableContainer>
-    </MainCard>
+      </Paper>
+    </Box>
   );
 };
 
-export default ProductList;
+export default TransactionsPage;

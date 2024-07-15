@@ -144,7 +144,7 @@ const AdminProducts = () => {
         </Grid>
         <Grid item>
           <Typography variant="h4" gutterBottom align="center">
-            Admin Products
+            Products
           </Typography>
         </Grid>
         <Grid item></Grid>

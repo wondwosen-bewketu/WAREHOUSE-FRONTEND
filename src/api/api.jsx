@@ -233,6 +233,18 @@ export const transferProductToSales = async (data) => {
   }
 };
 
+export const getTransferToSalesTransactionsByWarehouse = async (
+  warehouseId
+) => {
+  try {
+    const response = await api.get(`transfer/transfer-to-sales/${warehouseId}`);
+    return response.data.transactions;
+  } catch (error) {
+    console.error("Error fetching transfer to sales transactions:", error);
+    throw error;
+  }
+};
+
 export const restockProduct = async (data) => {
   try {
     setAuthHeaders();
@@ -244,10 +256,20 @@ export const restockProduct = async (data) => {
   }
 };
 
+export const fetchSalesProducts = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}sales/products`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sales products:", error);
+    throw error;
+  }
+  s;
+};
 export const recordSale = async (productId, saleData) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}sales/record/${productId}`, // Use `${BASE_URL}sales/record/${productId}` for the URL
+      `${BASE_URL}record/sale`, // Use `${BASE_URL}sales/record/${productId}` for the URL
       saleData,
       {
         headers: {

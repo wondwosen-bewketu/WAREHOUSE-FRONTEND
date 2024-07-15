@@ -119,8 +119,8 @@ function PrivateRoutes() {
             <Route path="/listProducts" element={<AdminWarehouse />} />
             <Route path="TransferToSale" element={<TransferToSale />} />
             <Route path="UsersOnWarehouse" element={<UsersOnWarehouse />} />
-
-            <Route path="/ProductRequest" element={<ProductRequest />} />UsersOnWarehouse
+            <Route path="/ProductRequest" element={<ProductRequest />} />
+            UsersOnWarehouse
           </Routes>
         );
       case "manager": // Combine cases for Call Center and General Manager
@@ -128,6 +128,7 @@ function PrivateRoutes() {
           <Routes>
             <Route index element={<Navigate replace to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/listProducts" element={<AdminWarehouse />} />
             <Route path="TransferToSale" element={<TransferToSale />} />
             <Route path="/restockTransfer" element={<RestockTransfer />} />
 
