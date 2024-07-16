@@ -1,5 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "./baseURL";
+import { Api } from "@mui/icons-material";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -264,7 +265,6 @@ export const fetchSalesProducts = async () => {
     console.error("Error fetching sales products:", error);
     throw error;
   }
-  s;
 };
 export const recordSale = async (productId, saleData) => {
   try {
@@ -283,7 +283,15 @@ export const recordSale = async (productId, saleData) => {
     throw error;
   }
 };
-
+export const fetchSalesByUser = async (userId) => {
+  try {
+    const response = await api.get(`sales/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sales:", error);
+    throw error; // Re-throw the error to handle it in the component
+  }
+};
 export const getDashboardCounts = async () => {
   try {
     const response = await axios.get(`${BASE_URL}dashboard/counts`);

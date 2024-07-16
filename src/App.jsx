@@ -117,17 +117,9 @@ function PrivateRoutes() {
             <Route path="/AdminRegisterUser" element={<AdminRegisterUser />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/listProducts" element={<AdminWarehouse />} />
-<<<<<<< HEAD
             <Route path="/TransferToSale" element={<TransferToSale />} />
             <Route path="/UsersOnWarehouse" element={<UsersOnWarehouse />} />
-
             <Route path="/ProductRequest" element={<ProductRequest />} />
-=======
-            <Route path="TransferToSale" element={<TransferToSale />} />
-            <Route path="UsersOnWarehouse" element={<UsersOnWarehouse />} />
-            <Route path="/ProductRequest" element={<ProductRequest />} />
-            UsersOnWarehouse
->>>>>>> 9a8623bbf56f48fa8fbf96ac970480ba6c2bf1d7
           </Routes>
         );
       case "manager": // Combine cases for Call Center and General Manager
@@ -152,7 +144,7 @@ function PrivateRoutes() {
             <Route index element={<Navigate replace to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/restock/:productId" element={<Restock />} />
-            <Route path="/recordsale/:productId" element={<RecordSale />} />
+            <Route path="/recordsale" element={<RecordSale />} />
             <Route path="/restock" element={<Restock />} />
             <Route path="/salesProductList" element={<SalesProductList />} />
             <Route path="/restockTransferList" element={<RestockList />} />

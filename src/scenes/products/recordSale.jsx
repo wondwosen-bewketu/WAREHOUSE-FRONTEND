@@ -1,149 +1,183 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Box,
-  TextField,
-  Button,
-  Typography,
+  Container,
   Paper,
-  CircularProgress,
-  Alert,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  TextField,
+  Box,
 } from "@mui/material";
-import { recordSale } from "../../api/api"; // Adjust the import path as needed
+import { fetchSalesByUser, recordSale } from "../../api/api";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: "20px",
+    padding: "20px",
+  },
+  paper: {
+    padding: "30px",
+    borderRadius: "15px",
+    background: "linear-gradient(135deg, #ece9e6 0%, #ffffff 100%)",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+  },
+  formControl: {
+    marginBottom: "20px",
+    "& label": {
+      color: "#1591ea",
+    },
+    "& .MuiInput-underline:before": {
+      borderBottomColor: "#1591ea",
+    },
+    "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#1591ea",
+    },
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#1591ea",
+    },
+  },
+  button: {
+    background: "#1591ea",
+    color: "#fff",
+    "&:hover": {
+      background: "#0d6fb8",
+    },
+  },
+  input: {
+    display: "none",
+  },
+  fileLabel: {
+    display: "inline-block",
+    padding: "10px 20px",
+    background: "#fff",
+    color: "#1591ea",
+    borderRadius: "5px",
+    cursor: "pointer",
+    "&:hover": {
+      background: "#0d6fb8",
+    },
+  },
+}));
 
 const SalesForm = () => {
-  const [formData, setFormData] = useState({
-    productId: "",
-    quantity: "",
-    salesUserId: "",
-    sivNumber: "",
-    transactionType: "",
-    sivImage: null,
-  });
+  const classes = useStyles();
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [sivImage, setSivImage] = useState(null);
+  const [sivNumber, setSivNumber] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  useEffect(() => {
+    const userId = localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user"))._id
+      : null;
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: files ? files : value,
-    }));
-  };
+    if (userId) {
+      fetchSalesData(userId);
+    } else {
+      console.error("User ID not found in localStorage");
+      // Handle the case where user ID is not found (e.g., redirect to login)
+    }
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-
+  const fetchSalesData = async (userId) => {
     try {
-      const response = await recordSale(formData);
-      setSuccess(response.message);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to record sale");
-    } finally {
-      setLoading(false);
+      const salesData = await fetchSalesByUser(userId);
+      setProducts(salesData.flatMap((sale) => sale.products));
+    } catch (error) {
+      console.error("Error fetching products:", error);
     }
   };
 
+  const handleSaleRecord = async () => {
+    if (!selectedProduct || !quantity || !sivImage || !sivNumber) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("productId", selectedProduct);
+    formData.append("quantity", quantity);
+    formData.append("sivImage", sivImage);
+    formData.append("sivNumber", sivNumber);
+
+    try {
+      await recordSale(formData);
+      alert("Sale recorded successfully!");
+      // Optionally, clear form fields or update state after successful sale recording
+    } catch (error) {
+      console.error("Error recording sale:", error);
+      alert("Failed to record sale. Please try again.");
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setSivImage(file);
+  };
+
   return (
-    <Box
-      sx={{
-        height: "100vh",
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <Paper elevation={3} sx={{ p: 3, width: "90%", maxWidth: "600px" }}>
-        <Typography variant="h4" gutterBottom>
-          Record a Sale
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            name="productId"
-            label="Product ID"
-            fullWidth
-            margin="normal"
-            value={formData.productId}
-            onChange={handleChange}
-          />
-          <TextField
-            name="quantity"
-            label="Quantity"
-            type="number"
-            fullWidth
-            margin="normal"
-            value={formData.quantity}
-            onChange={handleChange}
-          />
-          <TextField
-            name="salesUserId"
-            label="Sales User ID"
-            fullWidth
-            margin="normal"
-            value={formData.salesUserId}
-            onChange={handleChange}
-          />
-          <TextField
-            name="sivNumber"
-            label="SIV Number"
-            fullWidth
-            margin="normal"
-            value={formData.sivNumber}
-            onChange={handleChange}
-          />
-          <TextField
-            name="transactionType"
-            label="Transaction Type"
-            fullWidth
-            margin="normal"
-            value={formData.transactionType}
-            onChange={handleChange}
-          />
-          <Button
-            variant="contained"
-            component="label"
-            fullWidth
-            sx={{ mt: 2 }}
+    <Container maxWidth="lg" className={classes.root}>
+      <Typography variant="h4" gutterBottom>
+        Record Sale
+      </Typography>
+      <Paper className={classes.paper}>
+        <FormControl fullWidth className={classes.formControl}>
+          <InputLabel>Select Product</InputLabel>
+          <Select
+            value={selectedProduct}
+            onChange={(e) => setSelectedProduct(e.target.value)}
           >
-            Upload SIV Image
-            <input type="file" name="sivImage" hidden onChange={handleChange} />
-          </Button>
-
-          {loading && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-              <CircularProgress />
-            </Box>
-          )}
-          {error && (
-            <Box sx={{ mt: 2 }}>
-              <Alert severity="error">{error}</Alert>
-            </Box>
-          )}
-          {success && (
-            <Box sx={{ mt: 2 }}>
-              <Alert severity="success">{success}</Alert>
-            </Box>
-          )}
-
+            {products.map((product) => (
+              <MenuItem key={product.product._id} value={product.product._id}>
+                {product.product.name} - Available: {product.quantity}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <TextField
+          fullWidth
+          label="Quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          type="number"
+          // inputProps={{ min: "1" }}
+          className={classes.formControl}
+        />
+        <TextField
+          fullWidth
+          label="SIV Number"
+          value={sivNumber}
+          onChange={(e) => setSivNumber(e.target.value)}
+          className={classes.formControl}
+        />
+        <FormControl fullWidth className={classes.formControl}>
+          <input
+            accept="image/*"
+            className={classes.input}
+            id="sivImage"
+            type="file"
+            onChange={handleFileChange}
+          />
+          <label htmlFor="sivImage" className={classes.fileLabel}>
+            {sivImage ? sivImage.name : "Upload SIV Image"}
+          </label>
+        </FormControl>
+        <Box display="flex" justifyContent="center">
           <Button
-            type="submit"
             variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ mt: 2 }}
-            disabled={loading}
+            className={classes.button}
+            onClick={handleSaleRecord}
           >
             Record Sale
           </Button>
-        </form>
+        </Box>
       </Paper>
-    </Box>
+    </Container>
   );
 };
 
