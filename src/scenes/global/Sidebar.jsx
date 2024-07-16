@@ -273,7 +273,16 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItem>
-
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("/listProducts")}
+              button
+            >
+              <ListItemIcon>
+                <ListAltIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="List Products" />
+            </ListItem>
             <ListItem
               className={classes.listItem}
               onClick={() => handleItemClick("/TransferToSale")}
@@ -287,13 +296,13 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
 
             <ListItem
               className={classes.listItem}
-              onClick={() => handleItemClick("/productTransferList")}
+              onClick={() => handleItemClick("/transferSaleList")}
               button
             >
               <ListItemIcon>
                 <MonetizationOnIcon className={classes.lightBlueIcon} />
               </ListItemIcon>
-              <ListItemText primary="Stock Out" />
+              <ListItemText primary="Transaction Products" />
             </ListItem>
             <ListItem
               className={classes.listItem}

@@ -1,179 +1,150 @@
 import { useState } from "react";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Grid, TextField, Button, Typography, MenuItem } from "@mui/material";
-import { recordSale } from "../../api/api";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useParams } from "react-router-dom";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
+import { recordSale } from "../../api/api"; // Adjust the import path as needed
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#0080ff",
-    },
-  },
-});
-
-const RecordSaleForm = () => {
-  const { productId } = useParams(); // Get productId from route params
+const SalesForm = () => {
   const [formData, setFormData] = useState({
-    quantitySold: 0,
-    transactionType: "sale",
+    productId: "",
+    quantity: "",
+    salesUserId: "",
     sivNumber: "",
+    transactionType: "",
+    sivImage: null,
   });
-  const [sivImage, setSivImage] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: files ? files : value,
+    }));
   };
 
-  const handleSIVImageChange = (event) => {
-    const file = event.target.files[0];
-    setSivImage(file);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-
-    const data = new FormData();
-    data.append("product", productId); // Append productId from route params
-    for (const key in formData) {
-      data.append(key, formData[key]);
-    }
-    if (sivImage) {
-      data.append("sivImage", sivImage);
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
     try {
-      const result = await recordSale(productId, data); // Pass productId to recordSale function
-      console.log("Sale recorded successfully:", result);
-      toast.success("Sale recorded successfully!");
-      setFormData({
-        quantitySold: 0,
-        transactionType: "sale",
-        sivNumber: "",
-      });
-    } catch (error) {
-      console.error("Error recording sale:", error);
-      toast.error("Error recording sale!");
+      const response = await recordSale(formData);
+      setSuccess(response.message);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to record sale");
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <ToastContainer />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 800 }}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            style={{
-              marginBottom: "1rem",
-              textAlign: "center",
-              marginTop: "2rem",
-            }}
+    <Box
+      sx={{
+        height: "100vh",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f5f5f5",
+      }}
+    >
+      <Paper elevation={3} sx={{ p: 3, width: "90%", maxWidth: "600px" }}>
+        <Typography variant="h4" gutterBottom>
+          Record a Sale
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            name="productId"
+            label="Product ID"
+            fullWidth
+            margin="normal"
+            value={formData.productId}
+            onChange={handleChange}
+          />
+          <TextField
+            name="quantity"
+            label="Quantity"
+            type="number"
+            fullWidth
+            margin="normal"
+            value={formData.quantity}
+            onChange={handleChange}
+          />
+          <TextField
+            name="salesUserId"
+            label="Sales User ID"
+            fullWidth
+            margin="normal"
+            value={formData.salesUserId}
+            onChange={handleChange}
+          />
+          <TextField
+            name="sivNumber"
+            label="SIV Number"
+            fullWidth
+            margin="normal"
+            value={formData.sivNumber}
+            onChange={handleChange}
+          />
+          <TextField
+            name="transactionType"
+            label="Transaction Type"
+            fullWidth
+            margin="normal"
+            value={formData.transactionType}
+            onChange={handleChange}
+          />
+          <Button
+            variant="contained"
+            component="label"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Upload SIV Image
+            <input type="file" name="sivImage" hidden onChange={handleChange} />
+          </Button>
+
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+              <CircularProgress />
+            </Box>
+          )}
+          {error && (
+            <Box sx={{ mt: 2 }}>
+              <Alert severity="error">{error}</Alert>
+            </Box>
+          )}
+          {success && (
+            <Box sx={{ mt: 2 }}>
+              <Alert severity="success">{success}</Alert>
+            </Box>
+          )}
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+            disabled={loading}
           >
             Record Sale
-          </Typography>
-          <hr
-            style={{
-              border: "1px solid #ccc",
-              width: "100%",
-              marginBottom: "4rem",
-            }}
-          />
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                id="quantitySold"
-                name="quantitySold"
-                label="Quantity Sold"
-                type="number"
-                value={formData.quantitySold}
-                onChange={handleChange}
-                required
-                InputProps={{ inputProps: { min: 0 } }} // Ensure non-negative quantity
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                id="transactionType"
-                name="transactionType"
-                label="Transaction Type"
-                select
-                value={formData.transactionType}
-                onChange={handleChange}
-                required
-              >
-                <MenuItem value="sale">Sale</MenuItem>
-                <MenuItem value="return">Return</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                id="sivNumber"
-                name="sivNumber"
-                label="SIV Number"
-                value={formData.sivNumber}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <input
-                accept="image/*"
-                style={{ display: "none" }}
-                id="sivImage"
-                name="sivImage"
-                type="file"
-                onChange={handleSIVImageChange}
-                required
-              />
-              <label htmlFor="sivImage">
-                <Button
-                  variant="outlined"
-                  component="span"
-                  fullWidth
-                  style={{ marginTop: "1rem" }}
-                >
-                  Upload SIV Image
-                </Button>
-              </label>
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                disabled={isSubmitting}
-                fullWidth
-                style={{ marginTop: "1rem" }}
-              >
-                {isSubmitting ? "Submitting..." : "Record Sale"}
-              </Button>
-            </Grid>
-          </Grid>
+          </Button>
         </form>
-      </div>
-    </ThemeProvider>
+      </Paper>
+    </Box>
   );
 };
 
-export default RecordSaleForm;
+export default SalesForm;
