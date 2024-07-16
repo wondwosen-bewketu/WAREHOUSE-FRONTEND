@@ -220,6 +220,16 @@ export const fetchProducts = async () => {
   }
 };
 
+export const getRestockTransactionsByWarehouse = async (warehouseId) => {
+  try {
+    const response = await api.get(`transfer/restock/${warehouseId}`);
+    return response.data.transactions;
+  } catch (error) {
+    console.error("Error fetching restock transactions:", error);
+    throw error;
+  }
+};
+
 export const transferProductToSales = async (data) => {
   try {
     const response = await api.post("sales/transfer", data, {

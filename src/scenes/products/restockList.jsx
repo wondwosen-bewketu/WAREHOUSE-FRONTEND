@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getRestockTransactionsByWarehouse } from "../../api/api";
 import {
   Table,
   TableBody,
@@ -6,155 +7,113 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
-  Button,
-  TextField,
   Paper,
-  
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import MainCard from "../../ui-component/cards/MainCard";
-import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
-import { fetchProducts } from "../../api/api";
-import { useNavigate } from "react-router-dom";
+  CircularProgress,
+  Typography,
+  Avatar,
+} from "@mui/material"; // Importing components from @mui/material
 
-const Root = styled("div")(({ theme }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(2),
-  background: theme.palette.background.default,
-}));
+import { makeStyles } from "@mui/styles"; // Import makeStyles from @mui/styles for Material-UI v5
 
-const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
-  marginTop: theme.spacing(2),
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[4],
-  backgroundColor: theme.palette.background.paper,
-}));
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  fontWeight: theme.typography.fontWeightBold,
-  backgroundColor: "#1591ea",
-  color: theme.palette.common.white,
-}));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-  backgroundColor: "#1591ea",
-  color: theme.palette.common.white,
-  "&:hover": {
-    backgroundColor: theme.palette.primary.dark,
+// Custom styles using makeStyles from Material-UI
+const useStyles = makeStyles((theme) => ({
+  tableContainer: {
+    borderRadius: 12,
+    boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.15)",
+    padding: theme.spacing(2),
+    backgroundColor: "#f7f7f7", // Light gray background
+    marginBottom: theme.spacing(3),
+  },
+  tableHead: {
+    backgroundColor: "#e0e0e0", // Gray background for table head
+  },
+  avatar: {
+    backgroundColor: theme.palette.secondary.main, // Use secondary color for avatar background
+    color: theme.palette.secondary.contrastText, // White text color
   },
 }));
 
-const ProductList = () => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate();
+const RestockTransactions = () => {
+  const classes = useStyles(); // Custom styles hook
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true); // State to track loading state
+
+  const user = JSON.parse(localStorage.getItem("user")); // Get user details from localStorage
+  const warehouseId = user ? user.warehouse : null;
 
   useEffect(() => {
-    const getProducts = async () => {
-      const data = await fetchProducts();
-      setProducts(data);
-      setFilteredProducts(data); // Initialize filteredProducts with all products
+    const fetchTransactions = async () => {
+      try {
+        const fetchedTransactions = await getRestockTransactionsByWarehouse(
+          warehouseId
+        );
+        setTransactions(fetchedTransactions);
+        setLoading(false); // Set loading to false after data is fetched
+      } catch (error) {
+        console.error("Error fetching restock transactions:", error);
+        setLoading(false); // Ensure loading state is updated on error
+      }
     };
 
-    getProducts();
-  }, []);
-
-  useEffect(() => {
-    // Filter products based on searchTerm
-    if (searchTerm.trim() === "") {
-      setFilteredProducts(products);
-    } else {
-      const filtered = products.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredProducts(filtered);
+    if (warehouseId) {
+      fetchTransactions();
     }
-  }, [searchTerm, products]);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleSaleButtonClick = (productId) => {
-    navigate(`/restock/${productId}`);
-  };
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  }, [warehouseId]);
 
   return (
-    <MainCard
-      title="Product List"
-      secondary={
-        <CardSecondaryAction link={"/addProduct"} title="Add Product" />
-      }
-    >
-      <Root>
-        <TextField
-          label="Search by Product Name"
-          variant="outlined"
-          fullWidth
-          value={searchTerm}
-          onChange={handleSearchChange}
-          sx={{ marginBottom: 2 }}
-        />
-        <StyledTableContainer component={Paper}>
+    <div>
+      <Typography variant="h4" gutterBottom>
+        Restock Transactions
+      </Typography>
+      {loading ? (
+        <CircularProgress /> // Show loading indicator while fetching data
+      ) : (
+        <TableContainer component={Paper} className={classes.tableContainer}>
           <Table>
-            <TableHead>
+            <TableHead className={classes.tableHead}>
               <TableRow>
-                <StyledTableCell>Name</StyledTableCell>
-                <StyledTableCell>Category</StyledTableCell>
-                <StyledTableCell>Quantity</StyledTableCell>
-                <StyledTableCell>Unit Price</StyledTableCell>
-                <StyledTableCell>Product Price</StyledTableCell>
-                <StyledTableCell>Action</StyledTableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Quantity</TableCell>
+                <TableCell>Product Name</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Unit</TableCell>
+                <TableCell>Unit Price</TableCell>
+                <TableCell>Sales User</TableCell>
+                <TableCell>Stock Transfer Image</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredProducts
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((product) => (
-                  <TableRow key={product._id} style={{ cursor: "pointer" }}>
-                    <TableCell>{product.name}</TableCell>
-                    <TableCell>{product.category}</TableCell>
-                    <TableCell>{product.quantity}</TableCell>
-                    <TableCell>{product.unitPrice}</TableCell>
-                    <TableCell>{product.productPrice}</TableCell>
-                    <TableCell>
-                      <StyledButton
-                        variant="contained"
-                        onClick={() => handleSaleButtonClick(product._id)}
-                      >
-                        Restock
-                      </StyledButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {transactions.map((transaction) => (
+                <TableRow key={transaction._id}>
+                  <TableCell>
+                    {new Date(transaction.date).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>{transaction.quantity}</TableCell>
+                  <TableCell>{transaction.productId.name}</TableCell>
+                  <TableCell>{transaction.productId.category}</TableCell>
+                  <TableCell>{transaction.productId.unit}</TableCell>
+                  <TableCell>${transaction.productId.unitPrice}</TableCell>
+                  <TableCell>
+                    <Avatar className={classes.avatar}>
+                      {transaction.salesUserId.fullName.charAt(0)}
+                    </Avatar>
+                    {transaction.salesUserId.fullName}
+                  </TableCell>
+                  <TableCell>
+                    <img
+                      src={transaction.stockTransferImage.url}
+                      alt="Stock Transfer"
+                      style={{ maxWidth: "100px" }}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={filteredProducts.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </StyledTableContainer>
-      </Root>
-    </MainCard>
+        </TableContainer>
+      )}
+    </div>
   );
 };
 
-export default ProductList;
+export default RestockTransactions;

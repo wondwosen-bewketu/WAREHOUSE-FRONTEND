@@ -121,6 +121,7 @@ function PrivateRoutes() {
             <Route path="/TransferToSale" element={<TransferToSale />} />
             <Route path="/UsersOnWarehouse" element={<UsersOnWarehouse />} />
             <Route path="/ProductRequest" element={<ProductRequest />} />
+            <Route path="/restockTransferList" element={<RestockList />} />
           </Routes>
         );
       case "manager": // Combine cases for Call Center and General Manager
@@ -131,7 +132,7 @@ function PrivateRoutes() {
             <Route path="/listProducts" element={<AdminWarehouse />} />
             <Route path="TransferToSale" element={<TransferToSale />} />
             <Route path="/restockTransfer" element={<RestockTransfer />} />
-
+            <Route path="/restockTransferList" element={<RestockList />} />
             <Route
               path="/transfertosale/:productId"
               element={<TransferToSale />}
@@ -149,7 +150,7 @@ function PrivateRoutes() {
             <Route path="/restock" element={<Restock />} />
             <Route path="/SoldRecords" element={<SoldRecords />} />
             <Route path="/salesProductList" element={<SalesProductList />} />
-            <Route path="/restockTransferList" element={<RestockList />} />
+
             <Route
               path="productTransferList"
               element={<ProductTransferList />}
