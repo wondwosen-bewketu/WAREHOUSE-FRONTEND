@@ -1,189 +1,240 @@
-import { useState, useEffect } from "react";
-import { restockProduct, fetchProducts, fetchSalesUsers } from "../../api/api";
+// src/components/RestockForm.js
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Paper,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  TextField,
+  Box,
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
+import {
+  fetchSalesByUser,
+  restockProduct,
+  fetchWarehouses,
+} from "../../api/api";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const RestockProduct = () => {
-  const [formData, setFormData] = useState({
-    productId: "",
-    quantity: "",
-    warehouseId: "",
-    salesUserId: "",
-    location: "",
-    stockTransferNumber: "",
-  });
-  const [image, setImage] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: "20px",
+    padding: "20px",
+  },
+  paper: {
+    padding: "30px",
+    borderRadius: "15px",
+    background: "linear-gradient(135deg, #ece9e6 0%, #ffffff 100%)",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+  },
+  formControl: {
+    marginBottom: "20px",
+    "& label": {
+      color: "#1591ea",
+    },
+    "& .MuiInput-underline:before": {
+      borderBottomColor: "#1591ea",
+    },
+    "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#1591ea",
+    },
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "#1591ea",
+    },
+  },
+  button: {
+    background: "#1591ea",
+    color: "#fff",
+    "&:hover": {
+      background: "#0d6fb8",
+    },
+  },
+  input: {
+    display: "none",
+  },
+  fileLabel: {
+    display: "inline-block",
+    padding: "10px 20px",
+    background: "#fff",
+    color: "#1591ea",
+    borderRadius: "5px",
+    cursor: "pointer",
+    "&:hover": {
+      background: "#0d6fb8",
+    },
+  },
+}));
+
+const RestockForm = () => {
+  const classes = useStyles();
   const [products, setProducts] = useState([]);
-  const [salesUsers, setSalesUsers] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [stockTransferImage, setStockTransferImage] = useState(null);
+  const [stockTransferNumber, setStockTransferNumber] = useState("");
+  const [warehouses, setWarehouses] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const productsData = await fetchProducts();
-        const salesUsersData = await fetchSalesUsers();
-        setProducts(productsData);
-        setSalesUsers(salesUsersData);
-      } catch (error) {
-        setMessage(error.message);
-      }
-    };
-    fetchData();
-  }, []);
+    const userId = localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user"))._id
+      : null;
 
-  useEffect(() => {
-    const warehouseId = localStorage.getItem("warehouse");
-    if (warehouseId) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        warehouseId,
-      }));
+    if (userId) {
+      fetchSalesData(userId);
+    } else {
+      console.error("User ID not found in localStorage");
+      // Handle the case where user ID is not found (e.g., redirect to login)
     }
+
+    fetchWarehouseData();
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const fetchSalesData = async (userId) => {
+    try {
+      const salesData = await fetchSalesByUser(userId);
+      setProducts(salesData.flatMap((sale) => sale.products));
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
   };
 
-  const handleFileChange = (e) => {
-    setImage(e.target.files[0]);
+  const fetchWarehouseData = async () => {
+    try {
+      const warehouseData = await fetchWarehouses();
+      setWarehouses(warehouseData);
+    } catch (error) {
+      console.error("Error fetching warehouses:", error);
+    }
   };
 
-  const handleSalesUserSelect = (e) => {
-    setFormData({ ...formData, salesUserId: e.target.value });
-  };
+  const handleRestock = async () => {
+    if (
+      !selectedProduct ||
+      !quantity ||
+      !stockTransferImage ||
+      !stockTransferNumber ||
+      !selectedWarehouse
+    ) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
     setLoading(true);
-    setMessage("");
-    const data = new FormData();
-    for (const key in formData) {
-      data.append(key, formData[key]);
-    }
-    if (image) {
-      data.append("stockTransferImage", image);
-    }
+
+    const formData = new FormData();
+    formData.append("productId", selectedProduct);
+    formData.append("quantity", quantity);
+    formData.append("stockTransferImage", stockTransferImage);
+    formData.append("stockTransferNumber", stockTransferNumber);
+    formData.append(
+      "salesUserId",
+      JSON.parse(localStorage.getItem("user"))._id
+    );
+    formData.append("warehouseId", selectedWarehouse);
 
     try {
-      const response = await restockProduct(data);
-      setMessage(response.message);
+      const response = await restockProduct(formData);
+      toast.success("Product restocked successfully!");
+      // Optionally, clear form fields or update state after successful restock
+      setSelectedProduct("");
+      setQuantity(1);
+      setStockTransferImage(null);
+      setStockTransferNumber("");
+      setSelectedWarehouse("");
     } catch (error) {
-      setMessage(error.message);
+      toast.error("Failed to restock product. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const formStyle = {
-    display: "flex",
-    flexDirection: "column",
-    maxWidth: "600px",
-    margin: "auto",
-    padding: "1rem",
-    borderRadius: "8px",
-    backgroundColor: "#f9f9f9",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  };
-
-  const inputStyle = {
-    marginBottom: "1rem",
-    padding: "0.5rem",
-    borderRadius: "4px",
-    border: "1px solid #ddd",
-  };
-
-  const buttonStyle = {
-    padding: "0.5rem",
-    borderRadius: "4px",
-    border: "none",
-    backgroundColor: "#1591ea",
-    color: "white",
-    cursor: "pointer",
-  };
-
-  const selectStyle = {
-    ...inputStyle,
-    cursor: "pointer",
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setStockTransferImage(file);
   };
 
   return (
-    <form style={formStyle} onSubmit={handleSubmit}>
-      <h2 style={{ textAlign: "center", color: "#1591ea" }}>Restock Product</h2>
-      <select
-        name="productId"
-        value={formData.productId}
-        onChange={handleChange}
-        style={selectStyle}
-      >
-        <option value="" disabled>
-          Select Product
-        </option>
-        {products.map((product) => (
-          <option key={product._id} value={product._id}>
-            {product.name}
-          </option>
-        ))}
-      </select>
-      <input
-        type="number"
-        name="quantity"
-        placeholder="Quantity"
-        value={formData.quantity}
-        onChange={handleChange}
-        style={inputStyle}
-      />
-      <select
-        name="salesUserId"
-        value={formData.salesUserId}
-        onChange={handleSalesUserSelect}
-        style={selectStyle}
-      >
-        <option value="" disabled>
-          Select Sales User
-        </option>
-        {salesUsers.map((user) => (
-          <option key={user._id} value={user._id}>
-            {user.fullName}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        name="location"
-        placeholder="Location"
-        value={formData.location}
-        onChange={handleChange}
-        style={inputStyle}
-      />
-      <input
-        type="text"
-        name="stockTransferNumber"
-        placeholder="Stock Transfer Number"
-        value={formData.stockTransferNumber}
-        onChange={handleChange}
-        style={inputStyle}
-      />
-      <input
-        type="file"
-        name="stockTransferImage"
-        onChange={handleFileChange}
-        style={inputStyle}
-      />
-      <button type="submit" style={buttonStyle} disabled={loading}>
-        {loading ? "Loading..." : "Restock Product"}
-      </button>
-      {message && (
-        <p
-          style={{
-            textAlign: "center",
-            color: message.includes("successfully") ? "green" : "red",
-          }}
-        >
-          {message}
-        </p>
-      )}
-    </form>
+    <Container maxWidth="lg" className={classes.root}>
+      <ToastContainer />
+      <Typography variant="h4" gutterBottom>
+        Restock Product
+      </Typography>
+      <Paper className={classes.paper}>
+        <FormControl fullWidth className={classes.formControl}>
+          <InputLabel>Select Product</InputLabel>
+          <Select
+            value={selectedProduct}
+            onChange={(e) => setSelectedProduct(e.target.value)}
+          >
+            {products.map((product) => (
+              <MenuItem key={product.product._id} value={product.product._id}>
+                {product.product.name} - Available: {product.quantity}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <TextField
+          fullWidth
+          label="Quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          type="number"
+          className={classes.formControl}
+        />
+        <TextField
+          fullWidth
+          label="Stock Transfer Number"
+          value={stockTransferNumber}
+          onChange={(e) => setStockTransferNumber(e.target.value)}
+          className={classes.formControl}
+        />
+        <FormControl fullWidth className={classes.formControl}>
+          <InputLabel>Select Warehouse</InputLabel>
+          <Select
+            value={selectedWarehouse}
+            onChange={(e) => setSelectedWarehouse(e.target.value)}
+          >
+            {warehouses.map((warehouse) => (
+              <MenuItem key={warehouse._id} value={warehouse._id}>
+                {warehouse.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth className={classes.formControl}>
+          <input
+            accept="image/*"
+            className={classes.input}
+            id="stockTransferImage"
+            type="file"
+            onChange={handleFileChange}
+          />
+          <label htmlFor="stockTransferImage" className={classes.fileLabel}>
+            {stockTransferImage
+              ? stockTransferImage.name
+              : "Upload Stock Transfer Image"}
+          </label>
+        </FormControl>
+        <Box display="flex" justifyContent="center">
+          <Button
+            variant="contained"
+            className={classes.button}
+            onClick={handleRestock}
+            disabled={loading}
+          >
+            {loading ? "Restocking..." : "Restock Product"}
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 
-export default RestockProduct;
+export default RestockForm;

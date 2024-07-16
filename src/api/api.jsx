@@ -42,7 +42,7 @@ export const createWarehouse = async (formData) => {
   }
 };
 
-export const getWarehouses = async () => {
+export const fetchWarehouses = async () => {
   try {
     const response = await api.get(`warehouse/all`);
     return response.data.warehouses;
@@ -233,6 +233,19 @@ export const transferProductToSales = async (data) => {
     throw new Error("Failed to transfer product to sales");
   }
 };
+export const restockProduct = async (data) => {
+  try {
+    const response = await api.post("sales/restock", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error restock product from sales:", error.message);
+    throw new Error("Failed to restock product from sales");
+  }
+};
 
 export const getTransferToSalesTransactionsByWarehouse = async (
   warehouseId
@@ -246,16 +259,25 @@ export const getTransferToSalesTransactionsByWarehouse = async (
   }
 };
 
-export const restockProduct = async (data) => {
+export const fetchSalesRecordsByUserId = async (userId) => {
   try {
-    setAuthHeaders();
-    const response = await api.post("/warehouse/restockProduct", data);
+    const response = await api.get(`record/sales/${userId}`);
     return response.data;
   } catch (error) {
-    console.error("Error restocking product:", error.message);
-    throw new Error("Failed to restock product");
+    console.error("Error fetching sales records:", error);
+    return { saleRecords: [] };
   }
 };
+// export const restockProduct = async (data) => {
+//   try {
+//     setAuthHeaders();
+//     const response = await api.post("/warehouse/restockProduct", data);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error restocking product:", error.message);
+//     throw new Error("Failed to restock product");
+//   }
+// };
 
 export const fetchSalesProducts = async () => {
   try {
