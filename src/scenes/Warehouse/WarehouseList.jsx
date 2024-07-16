@@ -10,7 +10,7 @@ import {
   Pagination,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { getWarehouses } from "../../api/api";
+import { fetchWarehouses } from "../../api/api";
 
 // Custom styled components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -80,9 +80,9 @@ const WarehouseList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchWarehouses = async () => {
+    const fetchWarehousess = async () => {
       try {
-        const data = await getWarehouses();
+        const data = await fetchWarehouses();
         setWarehouses(data);
       } catch (error) {
         console.error("Failed to fetch warehouses", error);
@@ -91,7 +91,7 @@ const WarehouseList = () => {
       }
     };
 
-    fetchWarehouses();
+    fetchWarehousess();
   }, []);
 
   const handleWarehouseClick = (warehouseId) => {
