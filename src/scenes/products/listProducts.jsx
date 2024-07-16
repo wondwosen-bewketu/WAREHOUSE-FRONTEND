@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Card,
@@ -11,6 +11,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
+  Box,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import MainCard from "../../ui-component/cards/MainCard";
@@ -18,6 +20,8 @@ import CardSecondaryAction from "../../ui-component/cards/CardSecondaryAction";
 import { fetchProducts } from "../../api/api";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import axios from "axios";
+import { BASE_URL } from "../../api/baseURL";
 
 const Root = styled("div")(({ theme }) => ({
   flexGrow: 1,
@@ -128,6 +132,7 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [open, setOpen] = useState(false);
+  const [additionalQuantity, setAdditionalQuantity] = useState(0);
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
@@ -148,6 +153,28 @@ const ProductList = () => {
   const handleCloseDialog = () => {
     setOpen(false);
     setSelectedProduct(null);
+    setAdditionalQuantity(0);
+  };
+
+  const handleUpdateQuantity = async () => {
+    try {
+      const response = await axios.put(
+        `${BASE_URL}warehouse/update-quantity/${selectedProduct._id}`,
+        { additionalQuantity }
+      );
+      console.log("Product updated:", response.data);
+
+      // Update the product list with the updated product
+      setProducts(
+        products.map((product) =>
+          product._id === selectedProduct._id ? response.data : product
+        )
+      );
+
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Error updating product quantity:", error);
+    }
   };
 
   const handlePreviousPage = () => {
@@ -197,14 +224,8 @@ const ProductList = () => {
                       variant="outlined"
                       onClick={() => handleOpenDialog(product)}
                     >
-                      Detail
+                      Add Quantity
                     </DetailButton>
-                    {/* <IconButton aria-label="edit" color="primary">
-                      <Edit />
-                    </IconButton>
-                    <IconButton aria-label="delete" color="secondary">
-                      <Delete />
-                    </IconButton> */}
                   </Actions>
                 </StyledCard>
               </Grid>
@@ -224,49 +245,30 @@ const ProductList = () => {
             <ArrowForwardIcon />
           </PaginationButton>
         </PaginationContainer>
-        <Dialog open={open} onClose={handleCloseDialog} fullWidth maxWidth="lg">
-          <DialogTitleWrapper>Product Details</DialogTitleWrapper>
+        <Dialog open={open} onClose={handleCloseDialog} fullWidth maxWidth="sm">
+          <DialogTitleWrapper>Update Product Quantity</DialogTitleWrapper>
           <DialogContentWrapper dividers>
             {selectedProduct && (
-              <DialogGrid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="h6">{selectedProduct.name}</Typography>
-                  <Typography>Category: {selectedProduct.category}</Typography>
-                  <Typography>Quantity: {selectedProduct.quantity}</Typography>
-                  <Typography>Unit: {selectedProduct.unit}</Typography>
-                  <Typography>
-                    Unit Price: {selectedProduct.unitPrice}
-                  </Typography>
-                  <Typography>
-                    Product Price: {selectedProduct.productPrice}
-                  </Typography>
-                  <Typography>
-                    Description: {selectedProduct.description}
-                  </Typography>
-                  <Typography>
-                    Warehouse Location: {selectedProduct.warehouseLocation}
-                  </Typography>
-                  <Typography>Barcode: {selectedProduct.barcode}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  {selectedProduct.grnImage && (
-                    <DialogImage
-                      src={selectedProduct.grnImage.url}
-                      alt="GRN"
-                      onClick={() => window.open(selectedProduct.grnImage.url)}
-                    />
-                  )}
-                  {selectedProduct.purchaseReceiptImage && (
-                    <DialogImage
-                      src={selectedProduct.purchaseReceiptImage.url}
-                      alt="Purchase Receipt"
-                      onClick={() =>
-                        window.open(selectedProduct.purchaseReceiptImage.url)
-                      }
-                    />
-                  )}
-                </Grid>
-              </DialogGrid>
+              <Box>
+                <Typography variant="h6">{selectedProduct.name}</Typography>
+                <TextField
+                  label="Additional Quantity"
+                  type="number"
+                  value={additionalQuantity}
+                  onChange={(e) =>
+                    setAdditionalQuantity(Number(e.target.value))
+                  }
+                  fullWidth
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleUpdateQuantity}
+                  style={{ marginTop: "20px" }}
+                >
+                  Update
+                </Button>
+              </Box>
             )}
           </DialogContentWrapper>
           <DialogActions>
