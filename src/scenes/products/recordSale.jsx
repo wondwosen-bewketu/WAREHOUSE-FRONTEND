@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import { fetchSalesByUser, recordSale } from "../../api/api";
 import { makeStyles } from "@mui/styles";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -70,6 +72,7 @@ const SalesForm = () => {
   const [quantity, setQuantity] = useState(1);
   const [sivImage, setSivImage] = useState(null);
   const [sivNumber, setSivNumber] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
 
   useEffect(() => {
     const userId = localStorage.getItem("user")
@@ -99,19 +102,35 @@ const SalesForm = () => {
       return;
     }
 
+    setLoading(true); // Start loading
+
     const formData = new FormData();
     formData.append("productId", selectedProduct);
     formData.append("quantity", quantity);
     formData.append("sivImage", sivImage);
     formData.append("sivNumber", sivNumber);
+    formData.append(
+      "salesUserId",
+      JSON.parse(localStorage.getItem("user"))._id
+    ); // Ensure salesUserId is sent
 
     try {
-      await recordSale(formData);
-      alert("Sale recorded successfully!");
+      console.log("Sale Data:", formData); // Log formData before sending
+
+      const response = await recordSale(formData); // Use recordSale with formData
+      console.log("Sale recorded successfully:", response);
+
+      toast.success("Sale recorded successfully!");
       // Optionally, clear form fields or update state after successful sale recording
+      setSelectedProduct("");
+      setQuantity(1);
+      setSivImage(null);
+      setSivNumber("");
     } catch (error) {
       console.error("Error recording sale:", error);
-      alert("Failed to record sale. Please try again.");
+      toast.error("Failed to record sale. Please try again.");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -145,7 +164,6 @@ const SalesForm = () => {
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           type="number"
-          // inputProps={{ min: "1" }}
           className={classes.formControl}
         />
         <TextField
@@ -172,8 +190,9 @@ const SalesForm = () => {
             variant="contained"
             className={classes.button}
             onClick={handleSaleRecord}
+            disabled={loading} // Disable button when loading
           >
-            Record Sale
+            {loading ? "Recording Sale..." : "Record Sale"}
           </Button>
         </Box>
       </Paper>

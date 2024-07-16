@@ -266,10 +266,10 @@ export const fetchSalesProducts = async () => {
     throw error;
   }
 };
-export const recordSale = async (productId, saleData) => {
+export const recordSale = async (saleData) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}record/sale`, // Use `${BASE_URL}sales/record/${productId}` for the URL
+      `${BASE_URL}record/sale`, // Adjust the endpoint URL as needed
       saleData,
       {
         headers: {
