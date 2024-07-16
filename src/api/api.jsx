@@ -72,7 +72,7 @@ export const fetchUsersByWarehouse = async (warehouseId) => {
 };
 export const deleteUserById = async (userId) => {
   try {
-    const response = await axios.delete(`${userId}`);
+    const response = await api.delete(`user/${userId}/delete`);
     return response.data;
   } catch (error) {
     // Handle the error appropriately

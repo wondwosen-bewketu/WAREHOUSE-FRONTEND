@@ -117,10 +117,10 @@ function PrivateRoutes() {
             <Route path="/AdminRegisterUser" element={<AdminRegisterUser />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/listProducts" element={<AdminWarehouse />} />
-            <Route path="TransferToSale" element={<TransferToSale />} />
-            <Route path="UsersOnWarehouse" element={<UsersOnWarehouse />} />
+            <Route path="/TransferToSale" element={<TransferToSale />} />
+            <Route path="/UsersOnWarehouse" element={<UsersOnWarehouse />} />
 
-            <Route path="/ProductRequest" element={<ProductRequest />} />UsersOnWarehouse
+            <Route path="/ProductRequest" element={<ProductRequest />} />
           </Routes>
         );
       case "manager": // Combine cases for Call Center and General Manager
