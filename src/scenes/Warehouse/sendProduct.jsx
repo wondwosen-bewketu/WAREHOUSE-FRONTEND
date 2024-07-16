@@ -17,7 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   sendProductToWarehouse,
-  getWarehouses,
+  fetchWarehouses,
   fetchProducts,
 } from "../../api/api"; // Adjust the import path as necessary
 
@@ -44,7 +44,7 @@ const SendProductForm = () => {
       try {
         const [productsData, warehousesData] = await Promise.all([
           fetchProducts(),
-          getWarehouses(),
+          fetchWarehouses(),
         ]);
         setProducts(productsData);
         setWarehouses(warehousesData);

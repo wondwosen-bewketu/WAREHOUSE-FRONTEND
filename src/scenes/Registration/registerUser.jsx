@@ -16,7 +16,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { postUserAsync } from "../../redux/slice/userSlice";
-import { getWarehouses } from "../../api/api"; // Adjust import as per your API structure
+import { fetchWarehouses } from "../../api/api"; // Adjust import as per your API structure
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -43,7 +43,7 @@ const RegisterUserForm = () => {
   useEffect(() => {
     const fetchWarehousesData = async () => {
       try {
-        const data = await getWarehouses();
+        const data = await fetchWarehouses();
         setWarehouses(data); // Assuming API returns an array of warehouses
       } catch (error) {
         console.error("Failed to fetch warehouses:", error);
