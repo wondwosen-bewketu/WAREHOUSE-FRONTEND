@@ -51,7 +51,6 @@ export const fetchWarehouses = async () => {
     throw error;
   }
 };
-
 export const fetchSalesUsers = async () => {
   try {
     const response = await api.get("/user/sales-users");
@@ -61,8 +60,6 @@ export const fetchSalesUsers = async () => {
     throw error;
   }
 };
-
-// Function to fetch users by warehouse ID
 export const fetchUsersByWarehouse = async (warehouseId) => {
   try {
     const response = await api.get(`warehouse/${warehouseId}/users`);
@@ -81,7 +78,6 @@ export const deleteUserById = async (userId) => {
     throw error; // Or handle the error differently based on your
   }
 };
-
 export const getWarehouseById = async (id) => {
   try {
     const response = await api.get(`warehouse/${id}/products`);
@@ -91,8 +87,6 @@ export const getWarehouseById = async (id) => {
     throw error;
   }
 };
-
-// Fetch warehouses associated with admin by ID
 export const getAdminsWarehouseProducts = async (adminId) => {
   try {
     const response = await axios.get(
@@ -105,7 +99,6 @@ export const getAdminsWarehouseProducts = async (adminId) => {
     throw error;
   }
 };
-
 export const sendProductToWarehouse = async (productData) => {
   try {
     const response = await api.post("warehouse/send-to-warehouse", productData);
@@ -115,7 +108,6 @@ export const sendProductToWarehouse = async (productData) => {
     throw new Error("Failed to send product to warehouse");
   }
 };
-
 export const requestProducts = async (productData) => {
   try {
     const response = await api.post("request/new", productData);
@@ -125,7 +117,6 @@ export const requestProducts = async (productData) => {
     throw new Error("Failed to request product");
   }
 };
-
 export const fetchProductRequests = async () => {
   try {
     const response = await api.get(`request/all`);
@@ -135,8 +126,6 @@ export const fetchProductRequests = async () => {
     throw error;
   }
 };
-
-// Function to fetch all transactions
 export const getAllTransactions = async () => {
   setAuthHeaders();
   const response = await api.get("warehouse/transactions");
@@ -151,7 +140,6 @@ export const getUsers = async () => {
     throw new Error("Failed to fetch users");
   }
 };
-// Function to change password
 export const changePassword = async (formData, token) => {
   try {
     setAuthHeaders();
@@ -162,8 +150,6 @@ export const changePassword = async (formData, token) => {
     throw new Error("Failed to change password");
   }
 };
-
-// Function to post user
 export const postUser = async (userData) => {
   try {
     setAuthHeaders();
@@ -174,8 +160,6 @@ export const postUser = async (userData) => {
     throw new Error("Failed to post user");
   }
 };
-
-// Function to log in user
 export const loginUser = async (loginData) => {
   try {
     const response = await api.post(`user/login`, loginData);
@@ -188,7 +172,6 @@ export const loginUser = async (loginData) => {
     throw new Error("Failed to login");
   }
 };
-
 export const addProduct = async (formData) => {
   try {
     setAuthHeaders();
@@ -203,8 +186,6 @@ export const addProduct = async (formData) => {
     throw new Error("Failed to add product");
   }
 };
-
-// Function to fetch all products
 export const fetchProducts = async () => {
   try {
     const response = await axios.get(`${BASE_URL}product/all`);
@@ -219,7 +200,6 @@ export const fetchProducts = async () => {
     return [];
   }
 };
-
 export const getRestockTransactionsByWarehouse = async (warehouseId) => {
   try {
     const response = await api.get(`transfer/restock/${warehouseId}`);
@@ -229,7 +209,6 @@ export const getRestockTransactionsByWarehouse = async (warehouseId) => {
     throw error;
   }
 };
-
 export const transferProductToSales = async (data) => {
   try {
     const response = await api.post("sales/transfer", data, {
@@ -256,7 +235,6 @@ export const restockProduct = async (data) => {
     throw new Error("Failed to restock product from sales");
   }
 };
-
 export const getTransferToSalesTransactionsByWarehouse = async (
   warehouseId
 ) => {
@@ -268,7 +246,6 @@ export const getTransferToSalesTransactionsByWarehouse = async (
     throw error;
   }
 };
-
 export const fetchSalesRecordsByUserId = async (userId) => {
   try {
     const response = await api.get(`record/sales/${userId}`);
@@ -288,7 +265,6 @@ export const fetchSalesRecordsByUserId = async (userId) => {
 //     throw new Error("Failed to restock product");
 //   }
 // };
-
 export const fetchSalesProducts = async () => {
   try {
     const response = await axios.get(`${BASE_URL}sales/products`);
@@ -333,7 +309,6 @@ export const getDashboardCounts = async () => {
     throw error;
   }
 };
-
 export const getStockTransferData = async (period) => {
   try {
     const response = await axios.get(
@@ -348,7 +323,6 @@ export const getStockTransferData = async (period) => {
     throw error;
   }
 };
-
 export const getTransfersToSale = async () => {
   try {
     const response = await axios.get(`${BASE_URL}transfer/all/transferToSale`);
@@ -358,7 +332,6 @@ export const getTransfersToSale = async () => {
     throw error;
   }
 };
-
 export const getRestocksFromSale = async () => {
   try {
     const response = await axios.get(`${BASE_URL}transfer/all/restockFromSale`);
@@ -368,7 +341,6 @@ export const getRestocksFromSale = async () => {
     throw error;
   }
 };
-
 export const updateProductQuantity = async (productId, data) => {
   try {
     const response = await axios.put(
@@ -383,5 +355,14 @@ export const updateProductQuantity = async (productId, data) => {
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || error.message);
+  }
+};
+
+export const fetchWarehouseByUserId = async (userId) => {
+  try {
+    const response = await api.get(`warehouse/${userId}/warehouses`);
+    return response.data;
+  } catch (error) {
+    throw new Error(`Error fetching warehouse: ${error.message}`);
   }
 };
