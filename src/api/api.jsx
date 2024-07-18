@@ -80,7 +80,7 @@ export const deleteUserById = async (userId) => {
 };
 export const getWarehouseById = async (id) => {
   try {
-    const response = await api.get(`warehouse/${id}/products`);
+    const response = await api.get(`warehouse/${id}/product`);
     return response.data;
   } catch (error) {
     console.error("Error fetching warehouse:", error);
@@ -90,7 +90,7 @@ export const getWarehouseById = async (id) => {
 export const getAdminsWarehouseProducts = async (adminId) => {
   try {
     const response = await axios.get(
-      `${BASE_URL}warehouse/${adminId}/warehouses`
+      `${BASE_URL}warehouse/${adminId}/products`
     );
     console.log("API response:", response); // Add logging for debugging
     return response.data;
@@ -99,6 +99,17 @@ export const getAdminsWarehouseProducts = async (adminId) => {
     throw error;
   }
 };
+
+export const fetchSalesUsersByWarehouse = async (warehouseId) => {
+  try {
+    const response = await api.get(`user/sales/${warehouseId}`);
+    return response.data; // Assuming the API returns an array of sales users
+  } catch (error) {
+    console.error("Error fetching sales users by warehouse:", error);
+    throw error;
+  }
+};
+
 export const sendProductToWarehouse = async (productData) => {
   try {
     const response = await api.post("warehouse/send-to-warehouse", productData);

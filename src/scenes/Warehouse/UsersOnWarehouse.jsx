@@ -21,33 +21,47 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { Delete as DeleteIcon } from "@mui/icons-material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 
 // Import the API functions
 import { fetchUsersByWarehouse, deleteUserById } from "../../api/api"; // Adjust the path based on your project structure
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
+    minHeight: "100vh",
     backgroundColor: theme.palette.background.default,
+    padding: theme.spacing(3),
   },
   container: {
     maxWidth: "100%",
-    padding: theme.spacing(3),
   },
   tableContainer: {
     boxShadow: theme.shadows[3],
+    maxWidth: "100%",
+    marginTop: theme.spacing(2),
   },
   deleteButton: {
     color: theme.palette.error.main,
+  },
+  backButton: {
+    marginBottom: theme.spacing(2),
+  },
+  pageTitle: {
+    marginBottom: theme.spacing(3),
+    textAlign: "center",
+  },
+  loadingContainer: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
 }));
 
 const UsersByWarehouse = () => {
   const classes = useStyles();
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -115,9 +129,13 @@ const UsersByWarehouse = () => {
     setDeleteDialogOpen(false);
   };
 
+  const handleBack = () => {
+    navigate("/dashboard");
+  };
+
   if (loading) {
     return (
-      <Box className={classes.root}>
+      <Box className={classes.loadingContainer}>
         <CircularProgress />
       </Box>
     );
@@ -126,16 +144,30 @@ const UsersByWarehouse = () => {
   if (error) {
     return (
       <Box className={classes.root}>
-        <Typography variant="h6" color="error">
+        <Typography variant="h6" color="error" gutterBottom>
           {error}
         </Typography>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={handleBack}
+        >
+          Back
+        </Button>
       </Box>
     );
   }
 
   return (
-    <Box className={classes.container}>
-      <Typography variant="h4" gutterBottom textAlign="center">
+    <Box className={classes.root}>
+      <Button
+        variant="outlined"
+        startIcon={<ArrowBackIcon />}
+        onClick={handleBack}
+      >
+        Back
+      </Button>
+      <Typography variant="h4" className={classes.pageTitle}>
         Users in Warehouse
       </Typography>
       <TableContainer component={Paper} className={classes.tableContainer}>

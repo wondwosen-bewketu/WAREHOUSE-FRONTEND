@@ -80,6 +80,10 @@ const UsersOnWarehouse = React.lazy(() =>
 );
 
 const SoldRecords = React.lazy(() => import("./scenes/Sales/SoldRecords"));
+const SalesByUser = React.lazy(() =>
+  import("./scenes/products/salesProductList")
+);
+
 function PrivateRoutes() {
   const user = useSelector((state) => state.user);
 
@@ -146,6 +150,8 @@ function PrivateRoutes() {
             <Route index element={<Navigate replace to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/restock/:productId" element={<Restock />} />
+            <Route path="/salesProducts" element={<SalesByUser />} />
+
             <Route path="/recordsale" element={<RecordSale />} />
             <Route path="/restock" element={<Restock />} />
             <Route path="/SoldRecords" element={<SoldRecords />} />

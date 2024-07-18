@@ -352,6 +352,16 @@ const Sidebar = ({ userRole, isOpen, toggleSidebar }) => {
             </ListItem>
             <ListItem
               className={classes.listItem}
+              onClick={() => handleItemClick("/salesProducts")}
+              button
+            >
+              <ListItemIcon>
+                <MonetizationOnIcon className={classes.lightBlueIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Product List" />
+            </ListItem>
+            <ListItem
+              className={classes.listItem}
               onClick={() => handleItemClick("/recordsale")}
               button
             >

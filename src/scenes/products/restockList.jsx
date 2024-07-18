@@ -11,8 +11,10 @@ import {
   CircularProgress,
   Typography,
   Avatar,
-} from "@mui/material"; // Importing components from @mui/material
-
+  IconButton,
+  Box,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { makeStyles } from "@mui/styles"; // Import makeStyles from @mui/styles for Material-UI v5
 
 // Custom styles using makeStyles from Material-UI
@@ -25,11 +27,29 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
   },
   tableHead: {
-    backgroundColor: "#e0e0e0", // Gray background for table head
+    backgroundColor: "#1591ea", // Blue background for table head
+  },
+  tableHeadCell: {
+    color: "#ffffff", // White text color
+    fontWeight: "bold",
   },
   avatar: {
     backgroundColor: theme.palette.secondary.main, // Use secondary color for avatar background
     color: theme.palette.secondary.contrastText, // White text color
+    marginRight: theme.spacing(1),
+  },
+  image: {
+    maxWidth: "100px",
+    borderRadius: "8px",
+  },
+  loadingContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "60vh",
+  },
+  backButton: {
+    marginBottom: theme.spacing(2),
   },
 }));
 
@@ -61,25 +81,50 @@ const RestockTransactions = () => {
   }, [warehouseId]);
 
   return (
-    <div>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ p: 3 }}>
+      <IconButton
+        className={classes.backButton}
+        onClick={() => window.history.back()}
+      >
+        <ArrowBackIcon fontSize="large" />
+        Back
+      </IconButton>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ textAlign: "center", color: "#1591ea" }}
+      >
         Restock Transactions
       </Typography>
       {loading ? (
-        <CircularProgress /> // Show loading indicator while fetching data
+        <Box className={classes.loadingContainer}>
+          <CircularProgress />
+        </Box>
       ) : (
         <TableContainer component={Paper} className={classes.tableContainer}>
           <Table>
             <TableHead className={classes.tableHead}>
               <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Product Name</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Unit</TableCell>
-                <TableCell>Unit Price</TableCell>
-                <TableCell>Sales User</TableCell>
-                <TableCell>Stock Transfer Image</TableCell>
+                <TableCell className={classes.tableHeadCell}>Date</TableCell>
+                <TableCell className={classes.tableHeadCell}>
+                  Quantity
+                </TableCell>
+                <TableCell className={classes.tableHeadCell}>
+                  Product Name
+                </TableCell>
+                <TableCell className={classes.tableHeadCell}>
+                  Category
+                </TableCell>
+                <TableCell className={classes.tableHeadCell}>Unit</TableCell>
+                <TableCell className={classes.tableHeadCell}>
+                  Unit Price
+                </TableCell>
+                <TableCell className={classes.tableHeadCell}>
+                  Sales User
+                </TableCell>
+                <TableCell className={classes.tableHeadCell}>
+                  Stock Transfer Image
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -94,16 +139,18 @@ const RestockTransactions = () => {
                   <TableCell>{transaction.productId.unit}</TableCell>
                   <TableCell>${transaction.productId.unitPrice}</TableCell>
                   <TableCell>
-                    <Avatar className={classes.avatar}>
-                      {transaction.salesUserId.fullName.charAt(0)}
-                    </Avatar>
-                    {transaction.salesUserId.fullName}
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Avatar className={classes.avatar}>
+                        {transaction.salesUserId.fullName.charAt(0)}
+                      </Avatar>
+                      {transaction.salesUserId.fullName}
+                    </Box>
                   </TableCell>
                   <TableCell>
                     <img
                       src={transaction.stockTransferImage.url}
                       alt="Stock Transfer"
-                      style={{ maxWidth: "100px" }}
+                      className={classes.image}
                     />
                   </TableCell>
                 </TableRow>
@@ -112,7 +159,7 @@ const RestockTransactions = () => {
           </Table>
         </TableContainer>
       )}
-    </div>
+    </Box>
   );
 };
 

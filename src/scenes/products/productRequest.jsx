@@ -8,7 +8,10 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
+  IconButton,
 } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { fetchProducts, requestProducts } from "../../api/api"; // Adjust path based on your project structure
 
 const ProductRequestForm = () => {
@@ -16,26 +19,25 @@ const ProductRequestForm = () => {
   const [products, setProducts] = useState([{ productId: "", quantity: "" }]);
   const [availableProducts, setAvailableProducts] = useState([]);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false); // State for loading indicator
 
   useEffect(() => {
     // Fetch warehouseId from localStorage on component mount
     const user = localStorage.getItem("user");
-    console.log("Raw user from localStorage:", user);
     const parsedUser = user ? JSON.parse(user) : null;
     const warehouseIdFromLocalStorage = parsedUser
       ? parsedUser.warehouse
       : null;
 
-    console.log("Parsed user from localStorage:", parsedUser);
-    console.log("Warehouse ID from localStorage:", warehouseIdFromLocalStorage);
     if (warehouseIdFromLocalStorage) {
       setWarehouseId(warehouseIdFromLocalStorage);
     }
 
     // Fetch available products for dropdown
+    setLoading(true); // Set loading to true when starting product fetch
     fetchProducts()
       .then((data) => {
-        console.log("Fetched products data:", data);
+        setLoading(false); // Set loading to false when fetch completes
         if (Array.isArray(data)) {
           const formattedProducts = data.map((product) => ({
             productId: product._id,
@@ -43,12 +45,11 @@ const ProductRequestForm = () => {
           }));
           setAvailableProducts(formattedProducts);
         } else {
-          console.error("No products found in response:", data);
           setAvailableProducts([]);
         }
       })
       .catch((error) => {
-        console.error("Error fetching products:", error.message);
+        setLoading(false); // Set loading to false on fetch error
         setAvailableProducts([]);
       });
   }, []); // Empty dependency array ensures this effect runs only once on mount
@@ -56,7 +57,6 @@ const ProductRequestForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Submitting request with warehouseId:", warehouseId);
     if (!warehouseId) {
       setMessage("Warehouse ID is missing. Please refresh and try again.");
       return;
@@ -68,13 +68,12 @@ const ProductRequestForm = () => {
         products,
       };
 
-      console.log("Product data to be submitted:", JSON.stringify(productData));
-
+      setLoading(true); // Set loading to true when submitting request
       const response = await requestProducts(productData);
-      console.log("Response from requestProducts:", response);
+      setLoading(false); // Set loading to false when request completes
       setMessage(response.message);
     } catch (error) {
-      console.error("Error requesting products:", error.message);
+      setLoading(false); // Set loading to false on request error
       setMessage("Failed to request products. Please try again.");
     }
   };
@@ -96,80 +95,114 @@ const ProductRequestForm = () => {
   };
 
   return (
-    <Box
-      sx={{
-        maxWidth: 600,
-        mx: "auto",
-        p: 3,
-        border: "1px solid #ccc",
-        borderRadius: 8,
-      }}
-    >
-      <Typography variant="h4" gutterBottom>
-        Product Request Form
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        {/* Warehouse ID is not displayed to the user */}
-        <input
-          type="hidden"
-          value={warehouseId}
-          onChange={(e) => setWarehouseId(e.target.value)}
-        />
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Products:
+    <>
+      <IconButton sx={{ mb: 2 }} onClick={() => window.history.back()}>
+        <ArrowBackIcon fontSize="large" />
+        Back
+      </IconButton>
+
+      <Box
+        sx={{
+          maxWidth: 1000,
+          mx: "auto",
+          p: 3,
+          border: "1px solid #ccc",
+          borderRadius: 2,
+          backgroundColor: "#f9f9f9",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ textAlign: "center", color: "#1591ea" }}
+        >
+          Product Request Form
         </Typography>
-        {availableProducts.length > 0 ? (
-          products.map((product, index) => (
-            <div key={index} style={{ marginBottom: 12 }}>
-              <FormControl fullWidth variant="outlined" sx={{ mb: 1 }}>
-                <InputLabel>Select Product</InputLabel>
-                <Select
-                  value={product.productId}
-                  onChange={(e) => handleProductSelect(index, e.target.value)}
-                  label="Select Product"
-                >
-                  {availableProducts.map((product) => (
-                    <MenuItem key={product.productId} value={product.productId}>
-                      {product.productName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <TextField
-                label="Quantity"
-                fullWidth
-                type="number"
-                variant="outlined"
-                value={product.quantity}
-                onChange={(e) =>
-                  handleProductChange(index, "quantity", e.target.value)
-                }
-                sx={{ mb: 2 }}
-              />
-            </div>
-          ))
-        ) : (
-          <Typography variant="body1" color="error">
-            No products available. Please try again later.
+        <form onSubmit={handleSubmit}>
+          <input
+            type="hidden"
+            value={warehouseId}
+            onChange={(e) => setWarehouseId(e.target.value)}
+          />
+          <Typography variant="h5" sx={{ mb: 2, color: "#1591ea" }}>
+            Products:
+          </Typography>
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+              <CircularProgress />
+            </Box>
+          ) : availableProducts.length > 0 ? (
+            products.map((product, index) => (
+              <Box key={index} sx={{ mb: 2 }}>
+                <FormControl fullWidth variant="outlined" sx={{ mb: 1 }}>
+                  <InputLabel>Select Product</InputLabel>
+                  <Select
+                    value={product.productId}
+                    onChange={(e) => handleProductSelect(index, e.target.value)}
+                    label="Select Product"
+                  >
+                    {availableProducts.map((product) => (
+                      <MenuItem
+                        key={product.productId}
+                        value={product.productId}
+                      >
+                        {product.productName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Quantity"
+                  fullWidth
+                  type="number"
+                  variant="outlined"
+                  value={product.quantity}
+                  onChange={(e) =>
+                    handleProductChange(index, "quantity", e.target.value)
+                  }
+                />
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body1" color="error">
+              No products available. Please try again later.
+            </Typography>
+          )}
+          <Button
+            variant="contained"
+            onClick={handleAddProduct}
+            sx={{
+              mb: 2,
+              backgroundColor: "#D19C22",
+              "&:hover": { backgroundColor: "#B8841C" },
+            }}
+          >
+            Add Product
+          </Button>
+          <br />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{
+              backgroundColor: "#1591ea",
+              "&:hover": { backgroundColor: "#127cc1" },
+            }}
+          >
+            Submit Request
+          </Button>
+        </form>
+        {message && (
+          <Typography
+            variant="body1"
+            sx={{ mt: 2, color: message.includes("success") ? "green" : "red" }}
+          >
+            {message}
           </Typography>
         )}
-        <Button variant="contained" onClick={handleAddProduct} sx={{ mb: 2 }}>
-          Add Product
-        </Button>
-        <br />
-        <Button type="submit" variant="contained" color="primary">
-          Submit Request
-        </Button>
-      </form>
-      {message && (
-        <Typography
-          variant="body1"
-          sx={{ mt: 2, color: message.includes("success") ? "green" : "red" }}
-        >
-          {message}
-        </Typography>
-      )}
-    </Box>
+      </Box>
+    </>
   );
 };
 

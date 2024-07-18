@@ -93,7 +93,7 @@ const ProductList = () => {
 
   return (
     <MainCard
-      title="Restock From Sale to Stock History"
+      title="Products From Stock to Warehouse History"
       secondary={
         <CardSecondaryAction link={"/addProduct"} title="Add Product" />
       }

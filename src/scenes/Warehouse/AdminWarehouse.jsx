@@ -13,6 +13,7 @@ import {
   Divider,
   Button,
   Tooltip,
+  Snackbar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -65,6 +66,8 @@ const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const navigate = useNavigate();
 
   const admin = JSON.parse(localStorage.getItem("user")); // Get admin details from localStorage
@@ -74,6 +77,7 @@ const AdminProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       if (adminId) {
+        setLoading(true); // Set loading state when fetching products
         try {
           const data = await getAdminsWarehouseProducts(adminId);
           console.log("Fetched data:", data); // Add logging for debugging
@@ -94,16 +98,22 @@ const AdminProducts = () => {
           } else {
             setError("Products data is not in the expected format");
             console.log("Products data is not in the expected format:", data);
+            setSnackbarMessage("Products data is not in the expected format");
+            setSnackbarOpen(true);
           }
         } catch (error) {
           setError("Error fetching products");
           console.error("Error fetching products:", error);
+          setSnackbarMessage("Error fetching products");
+          setSnackbarOpen(true);
         } finally {
-          setLoading(false);
+          setLoading(false); // Set loading state false after fetching products
         }
       } else {
         setError("Admin ID not found");
-        setLoading(false);
+        setLoading(false); // Set loading state false if admin ID is not found
+        setSnackbarMessage("Admin ID not found");
+        setSnackbarOpen(true);
       }
     };
 
@@ -112,6 +122,10 @@ const AdminProducts = () => {
 
   const handleBack = () => {
     navigate(-1); // Navigate back to the previous page
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   if (loading) {
@@ -132,6 +146,12 @@ const AdminProducts = () => {
 
   return (
     <StyledBox>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+      />
       <Grid container justifyContent="space-between" alignItems="center">
         <Grid item>
           <StyledButton
@@ -175,8 +195,7 @@ const AdminProducts = () => {
                     </Tooltip>
                     <Tooltip title="Unit Price" arrow>
                       <Typography variant="body1">
-                        <strong>Unit Price:</strong> $
-                        {item.product.unitPrice.toFixed(2)}
+                        <strong>Unit Price:</strong> {item.product.unitPrice}
                       </Typography>
                     </Tooltip>
                     <Tooltip title="Description" arrow>

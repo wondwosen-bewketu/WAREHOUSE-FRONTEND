@@ -101,12 +101,7 @@ const TransfersToSale = () => {
   }
 
   return (
-    <MainCard
-      title="Transfers to Sale History"
-      secondary={
-        <CardSecondaryAction link={"/addTransfer"} title="Add Transfer" />
-      }
-    >
+    <MainCard title="Transfers to Sale History">
       <Root>
         <TextField
           label="Search by Product Name or Remark"

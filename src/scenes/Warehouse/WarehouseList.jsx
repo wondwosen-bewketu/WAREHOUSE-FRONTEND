@@ -8,8 +8,11 @@ import {
   CircularProgress,
   Box,
   Pagination,
+  Button,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
 import { fetchWarehouses } from "../../api/api";
 
 // Custom styled components
@@ -72,6 +75,12 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
   background: "linear-gradient(135deg, #e0e0e0, #f5f5f5)",
 }));
 
+const NoWarehousesMessage = styled(Typography)(({ theme }) => ({
+  textAlign: "center",
+  marginTop: "20px",
+  color: theme.palette.text.primary,
+}));
+
 const WarehouseList = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,7 +89,7 @@ const WarehouseList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchWarehousess = async () => {
+    const fetchWarehousesData = async () => {
       try {
         const data = await fetchWarehouses();
         setWarehouses(data);
@@ -91,7 +100,7 @@ const WarehouseList = () => {
       }
     };
 
-    fetchWarehousess();
+    fetchWarehousesData();
   }, []);
 
   const handleWarehouseClick = (warehouseId) => {
@@ -109,6 +118,10 @@ const WarehouseList = () => {
     indexOfLastWarehouse
   );
 
+  const handleBack = () => {
+    navigate("/dashboard");
+  };
+
   if (loading) {
     return (
       <LoadingContainer>
@@ -117,8 +130,32 @@ const WarehouseList = () => {
     );
   }
 
+  if (warehouses.length === 0) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Grid container justifyContent="flex-start" marginBottom={2}>
+          <Button variant="contained" color="primary" onClick={handleBack}>
+            Back to Dashboard
+          </Button>
+        </Grid>
+        <NoWarehousesMessage variant="body1">
+          No warehouses available yet.
+        </NoWarehousesMessage>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ p: 3 }}>
+      <Grid container justifyContent="flex-start" marginBottom={2}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={handleBack}
+        >
+          Back
+        </Button>
+      </Grid>
       <Typography
         variant="h3"
         textAlign="center"

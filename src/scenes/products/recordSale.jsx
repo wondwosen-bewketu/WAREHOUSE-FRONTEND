@@ -16,6 +16,9 @@ import { makeStyles } from "@mui/styles";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Initialize toast notifications
+toast.configure();
+
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: "20px",
@@ -126,6 +129,10 @@ const SalesForm = () => {
       setQuantity(1);
       setSivImage(null);
       setSivNumber("");
+
+      setTimeout(() => {
+        window.location.reload(); // Refresh the page
+      }, 2000);
     } catch (error) {
       console.error("Error recording sale:", error);
       toast.error("Failed to record sale. Please try again.");

@@ -1,15 +1,64 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   transferProductToSales,
-  fetchProducts,
-  fetchSalesUsers,
-} from "../../api/api";
+  getAdminsWarehouseProducts,
+  fetchSalesUsersByWarehouse,
+} from "../../api/api"; // Adjust path as per your project structure
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  CircularProgress,
+  styled,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  backgroundColor: "#f9f9f9",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  borderRadius: "8px",
+}));
+
+const StyledForm = styled("form")({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+});
+
+const inputStyle = {
+  marginBottom: "1rem",
+};
+
+const buttonStyle = {
+  padding: "0.5rem",
+  borderRadius: "4px",
+  backgroundColor: "#1591ea",
+  color: "white",
+  cursor: "pointer",
+};
+
+const selectStyle = {
+  marginBottom: "1rem",
+  cursor: "pointer",
+};
 
 const TransferProduct = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     productId: "",
     quantity: "",
-    warehouseId: "",
+    warehouseId: "", // Initialize warehouseId state
     salesUserId: "",
     location: "",
     stockTransferNumber: "",
@@ -19,32 +68,51 @@ const TransferProduct = () => {
   const [message, setMessage] = useState("");
   const [products, setProducts] = useState([]);
   const [salesUsers, setSalesUsers] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
+      const userString = localStorage.getItem("user");
+      if (!userString) {
+        setError("User data not found in localStorage.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const productsData = await fetchProducts();
-        const salesUsersData = await fetchSalesUsers();
-        setProducts(productsData);
+        const user = JSON.parse(userString);
+        const warehouseId = user.warehouse;
+
+        if (!warehouseId) {
+          setError("Warehouse ID not found in user data.");
+          setLoading(false);
+          return;
+        }
+
+        // Set warehouseId in formData state
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          warehouseId: warehouseId,
+        }));
+
+        const response = await getAdminsWarehouseProducts(user._id);
+        if (response.products) {
+          const productsList = response.products.map((item) => item.product);
+          setProducts(productsList);
+        } else {
+          console.error("No products found in response");
+        }
+
+        const salesUsersData = await fetchSalesUsersByWarehouse(warehouseId);
         setSalesUsers(salesUsersData);
       } catch (error) {
-        setMessage(error.message);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    const parsedUser = user ? JSON.parse(user) : null;
-    const warehouseId = parsedUser ? parsedUser.warehouse : null;
-
-    if (warehouseId) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        warehouseId,
-      }));
-    }
   }, []);
 
   const handleChange = (e) => {
@@ -59,8 +127,8 @@ const TransferProduct = () => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+    setError("");
 
-    // Check if all required fields are filled
     if (
       !formData.productId ||
       !formData.quantity ||
@@ -68,7 +136,7 @@ const TransferProduct = () => {
       !formData.location ||
       !formData.stockTransferNumber
     ) {
-      setMessage("Please fill in all required fields.");
+      setError("Please fill in all required fields.");
       setLoading(false);
       return;
     }
@@ -81,141 +149,155 @@ const TransferProduct = () => {
       data.append("stockTransferImage", image);
     }
 
-    // Log the FormData contents
-    for (let pair of data.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
-    }
-
     try {
       const response = await transferProductToSales(data);
       setMessage(response.message);
     } catch (error) {
-      console.error(
-        "Error transferring product to sales:",
-        error.response?.data || error.message
-      );
-      setMessage(error.response?.data?.message || error.message);
+      setError(error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const formStyle = {
-    display: "flex",
-    flexDirection: "column",
-    maxWidth: "600px",
-    margin: "auto",
-    padding: "1rem",
-    borderRadius: "8px",
-    backgroundColor: "#f9f9f9",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  };
-
-  const inputStyle = {
-    marginBottom: "1rem",
-    padding: "0.5rem",
-    borderRadius: "4px",
-    border: "1px solid #ddd",
-  };
-
-  const buttonStyle = {
-    padding: "0.5rem",
-    borderRadius: "4px",
-    border: "none",
-    backgroundColor: "#1591ea",
-    color: "white",
-    cursor: "pointer",
-  };
-
-  const selectStyle = {
-    ...inputStyle,
-    cursor: "pointer",
+  const handleBack = () => {
+    navigate("/dashboard");
   };
 
   return (
-    <form style={formStyle} onSubmit={handleSubmit}>
-      <h2 style={{ textAlign: "center", color: "#1591ea" }}>
-        Transfer Product
-      </h2>
-      <select
-        name="productId"
-        value={formData.productId}
-        onChange={handleChange}
-        style={selectStyle}
-        required
+    <>
+      <Button
+        variant="outlined"
+        startIcon={<ArrowBackIcon />}
+        onClick={handleBack}
       >
-        <option value="" disabled>
-          Select Product
-        </option>
-        {products.map((product) => (
-          <option key={product._id} value={product._id}>
-            {product.name}
-          </option>
-        ))}
-      </select>
-      <input
-        type="number"
-        name="quantity"
-        placeholder="Quantity"
-        value={formData.quantity}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <select
-        name="salesUserId"
-        value={formData.salesUserId}
-        onChange={handleChange}
-        style={selectStyle}
-        required
-      >
-        <option value="" disabled>
-          Select Sales User
-        </option>
-        {salesUsers.map((user) => (
-          <option key={user._id} value={user._id}>
-            {user.fullName}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        name="location"
-        placeholder="Location"
-        value={formData.location}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="text"
-        name="stockTransferNumber"
-        placeholder="Stock Transfer Number"
-        value={formData.stockTransferNumber}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="file"
-        name="stockTransferImage"
-        onChange={handleFileChange}
-        style={inputStyle}
-      />
-      <button type="submit" style={buttonStyle} disabled={loading}>
-        {loading ? "Loading..." : "Transfer Product"}
-      </button>
-      {message && (
-        <p
-          style={{
-            textAlign: "center",
-            color: message.includes("successfully") ? "green" : "red",
-          }}
-        >
-          {message}
-        </p>
-      )}
-    </form>
+        Back
+      </Button>
+      <Container component="main" maxWidth="md">
+        <StyledPaper elevation={3}>
+          <Typography
+            component="h1"
+            variant="h5"
+            style={{ color: "#1591ea", marginBottom: "1rem" }}
+          >
+            Transfer Products To Sales
+          </Typography>
+          <StyledForm onSubmit={handleSubmit}>
+            {error && (
+              <Typography style={{ color: "red", marginBottom: "1rem" }}>
+                {error}
+              </Typography>
+            )}
+            <FormControl fullWidth style={selectStyle}>
+              <InputLabel id="product-label">Select Product</InputLabel>
+              <Select
+                labelId="product-label"
+                name="productId"
+                value={formData.productId}
+                onChange={handleChange}
+                required
+              >
+                <MenuItem value="" disabled>
+                  Select Product
+                </MenuItem>
+                {Array.isArray(products) && products.length > 0 ? (
+                  products.map((product) => (
+                    <MenuItem key={product._id} value={product._id}>
+                      {product.name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem value="" disabled>
+                    No products available
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+            <TextField
+              type="number"
+              name="quantity"
+              label="Quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              style={inputStyle}
+              required
+              fullWidth
+            />
+            <FormControl fullWidth style={selectStyle}>
+              <InputLabel id="sales-user-label">Select Sales User</InputLabel>
+              <Select
+                labelId="sales-user-label"
+                name="salesUserId"
+                value={formData.salesUserId}
+                onChange={handleChange}
+                required
+              >
+                <MenuItem value="" disabled>
+                  Select Sales User
+                </MenuItem>
+                {salesUsers.map((user) => (
+                  <MenuItem key={user._id} value={user._id}>
+                    {user.fullName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              type="text"
+              name="location"
+              label="Location"
+              value={formData.location}
+              onChange={handleChange}
+              style={inputStyle}
+              required
+              fullWidth
+            />
+            <TextField
+              type="text"
+              name="stockTransferNumber"
+              label="Stock Transfer Number"
+              value={formData.stockTransferNumber}
+              onChange={handleChange}
+              style={inputStyle}
+              required
+              fullWidth
+            />
+            <Button variant="contained" component="label" style={inputStyle}>
+              Upload Stock Transfer Image
+              <input
+                type="file"
+                name="stockTransferImage"
+                onChange={handleFileChange}
+                hidden
+              />
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              style={buttonStyle}
+              disabled={loading}
+              fullWidth
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Transfer Product"
+              )}
+            </Button>
+            {message && (
+              <Typography
+                style={{
+                  textAlign: "center",
+                  color: message.includes("successfully") ? "green" : "red",
+                  marginTop: "1rem",
+                }}
+              >
+                {message}
+              </Typography>
+            )}
+          </StyledForm>
+        </StyledPaper>
+      </Container>
+    </>
   );
 };
 

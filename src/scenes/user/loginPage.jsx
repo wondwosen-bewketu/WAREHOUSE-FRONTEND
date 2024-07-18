@@ -8,6 +8,7 @@ import {
   Grid,
   TextField,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import { loginUserAsync } from "../../redux/slice/userSlice";
 import backgroundImage from "./warehouse-management-system-hero-img-01-1.webp";
@@ -20,19 +21,20 @@ const LoginPage = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await dispatch(loginUserAsync({ phoneNumber, password }));
-      // Redirect to dashboard after successful login
       navigate("/dashboard");
-      // Show success toast
       toast.success("Login successful!");
     } catch (error) {
       setError(error.message);
-      // Show error toast
       toast.error(`Failed to log in: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -155,6 +157,7 @@ const LoginPage = () => {
                   variant="contained"
                   color="primary"
                   fullWidth
+                  disabled={loading}
                   sx={{
                     mt: 3,
                     textTransform: "capitalize",
@@ -162,7 +165,11 @@ const LoginPage = () => {
                     boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
                   }}
                 >
-                  Login
+                  {loading ? (
+                    <CircularProgress size={24} sx={{ color: "white" }} />
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
               </form>
               <Typography
