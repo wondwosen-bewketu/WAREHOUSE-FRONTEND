@@ -10,19 +10,24 @@ import {
   InputLabel,
   CircularProgress,
   IconButton,
+  Card,
+  CardContent,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { fetchProducts, requestProducts } from "../../api/api"; // Adjust path based on your project structure
+import { fetchProducts, requestProducts } from "../../api/api";
 
 const ProductRequestForm = () => {
   const [warehouseId, setWarehouseId] = useState("");
-  const [products, setProducts] = useState([{ productId: "", quantity: "" }]);
+  const [products, setProducts] = useState([
+    { productId: "", quantity: "", unitPrice: 0 },
+  ]);
   const [availableProducts, setAvailableProducts] = useState([]);
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false); // State for loading indicator
+  const [loading, setLoading] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [bankSlip, setBankSlip] = useState(null);
 
   useEffect(() => {
-    // Fetch warehouseId from localStorage on component mount
     const user = localStorage.getItem("user");
     const parsedUser = user ? JSON.parse(user) : null;
     const warehouseIdFromLocalStorage = parsedUser
@@ -33,15 +38,15 @@ const ProductRequestForm = () => {
       setWarehouseId(warehouseIdFromLocalStorage);
     }
 
-    // Fetch available products for dropdown
-    setLoading(true); // Set loading to true when starting product fetch
+    setLoading(true);
     fetchProducts()
       .then((data) => {
-        setLoading(false); // Set loading to false when fetch completes
+        setLoading(false);
         if (Array.isArray(data)) {
           const formattedProducts = data.map((product) => ({
             productId: product._id,
-            productName: product.name, // Adjust based on your product schema
+            productName: product.name,
+            unitPrice: product.unitPrice,
           }));
           setAvailableProducts(formattedProducts);
         } else {
@@ -49,10 +54,11 @@ const ProductRequestForm = () => {
         }
       })
       .catch((error) => {
-        setLoading(false); // Set loading to false on fetch error
+        setLoading(false);
         setAvailableProducts([]);
+        console.error("Error fetching products:", error);
       });
-  }, []); // Empty dependency array ensures this effect runs only once on mount
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,35 +69,63 @@ const ProductRequestForm = () => {
     }
 
     try {
-      const productData = {
-        warehouseId,
-        products,
-      };
+      const formData = new FormData();
+      formData.append("warehouseId", warehouseId);
+      products.forEach((product, index) => {
+        formData.append(`products[${index}][productId]`, product.productId);
+        formData.append(`products[${index}][quantity]`, product.quantity);
+      });
 
-      setLoading(true); // Set loading to true when submitting request
-      const response = await requestProducts(productData);
-      setLoading(false); // Set loading to false when request completes
+      // Append bank slip separately
+      if (bankSlip) {
+        formData.append("bankSlip", bankSlip);
+      }
+
+      setLoading(true);
+      const response = await requestProducts(formData);
+      setLoading(false);
       setMessage(response.message);
     } catch (error) {
-      setLoading(false); // Set loading to false on request error
+      setLoading(false);
       setMessage("Failed to request products. Please try again.");
+      console.error("Error requesting products:", error);
     }
   };
 
   const handleAddProduct = () => {
-    setProducts([...products, { productId: "", quantity: "" }]);
+    setProducts([...products, { productId: "", quantity: "", unitPrice: 0 }]);
   };
 
   const handleProductChange = (index, key, value) => {
     const updatedProducts = [...products];
     updatedProducts[index][key] = value;
     setProducts(updatedProducts);
+    calculateTotalPrice(); // Update total price when product quantity changes
   };
 
   const handleProductSelect = (index, productId) => {
+    const selectedProduct = availableProducts.find(
+      (product) => product.productId === productId
+    );
     const updatedProducts = [...products];
     updatedProducts[index].productId = productId;
+    updatedProducts[index].unitPrice = selectedProduct
+      ? selectedProduct.unitPrice
+      : 0;
     setProducts(updatedProducts);
+    calculateTotalPrice(); // Update total price when product is selected
+  };
+
+  const handleFileChange = (e) => {
+    setBankSlip(e.target.files[0]);
+  };
+
+  const calculateTotalPrice = () => {
+    const total = products.reduce(
+      (sum, product) => sum + product.unitPrice * product.quantity,
+      0
+    );
+    setTotalPrice(total);
   };
 
   return (
@@ -134,53 +168,108 @@ const ProductRequestForm = () => {
             </Box>
           ) : availableProducts.length > 0 ? (
             products.map((product, index) => (
-              <Box key={index} sx={{ mb: 2 }}>
-                <FormControl fullWidth variant="outlined" sx={{ mb: 1 }}>
-                  <InputLabel>Select Product</InputLabel>
-                  <Select
-                    value={product.productId}
-                    onChange={(e) => handleProductSelect(index, e.target.value)}
-                    label="Select Product"
+              <Card
+                key={index}
+                sx={{
+                  mb: 2,
+                  p: 2,
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #ddd",
+                }}
+              >
+                <CardContent>
+                  <FormControl fullWidth variant="outlined" sx={{ mb: 1 }}>
+                    <InputLabel>Select Product</InputLabel>
+                    <Select
+                      value={product.productId}
+                      onChange={(e) =>
+                        handleProductSelect(index, e.target.value)
+                      }
+                      label="Select Product"
+                    >
+                      {availableProducts.map((product) => (
+                        <MenuItem
+                          key={product.productId}
+                          value={product.productId}
+                        >
+                          {product.productName}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="Quantity"
+                    fullWidth
+                    type="number"
+                    variant="outlined"
+                    value={product.quantity}
+                    onChange={(e) =>
+                      handleProductChange(index, "quantity", e.target.value)
+                    }
+                    sx={{ mb: 1 }}
+                  />
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{ mt: 1, fontWeight: "bold", color: "#1591ea" }}
                   >
-                    {availableProducts.map((product) => (
-                      <MenuItem
-                        key={product.productId}
-                        value={product.productId}
-                      >
-                        {product.productName}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField
-                  label="Quantity"
-                  fullWidth
-                  type="number"
-                  variant="outlined"
-                  value={product.quantity}
-                  onChange={(e) =>
-                    handleProductChange(index, "quantity", e.target.value)
-                  }
-                />
-              </Box>
+                    Unit Price: {product.unitPrice.toFixed(2)}
+                  </Typography>
+                </CardContent>
+              </Card>
             ))
           ) : (
             <Typography variant="body1" color="error">
               No products available. Please try again later.
             </Typography>
           )}
-          <Button
-            variant="contained"
-            onClick={handleAddProduct}
-            sx={{
-              mb: 2,
-              backgroundColor: "#D19C22",
-              "&:hover": { backgroundColor: "#B8841C" },
-            }}
-          >
-            Add Product
-          </Button>
-          <br />
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+            <Button
+              variant="contained"
+              onClick={handleAddProduct}
+              sx={{
+                backgroundColor: "#D19C22",
+                "&:hover": { backgroundColor: "#B8841C" },
+              }}
+            >
+              Add Product
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                backgroundColor: "#1591ea",
+                "&:hover": { backgroundColor: "#127cc1" },
+              }}
+              onClick={calculateTotalPrice}
+            >
+              Calculate Total Price
+            </Button>
+          </Box>
+          <TextField
+            label="Bank Slip"
+            fullWidth
+            type="file"
+            inputProps={{ accept: "image/*" }}
+            variant="outlined"
+            onChange={handleFileChange}
+            sx={{ mb: 1 }}
+          />
+          {totalPrice > 0 && (
+            <Typography
+              variant="h6"
+              sx={{
+                mt: 2,
+                p: 2,
+                backgroundColor: "#1591ea",
+                color: "#fff",
+                textAlign: "center",
+                borderRadius: 1,
+              }}
+            >
+              Total Price: {totalPrice.toFixed(2)}
+            </Typography>
+          )}
           <Button
             type="submit"
             variant="contained"

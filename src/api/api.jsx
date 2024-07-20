@@ -121,7 +121,11 @@ export const sendProductToWarehouse = async (productData) => {
 };
 export const requestProducts = async (productData) => {
   try {
-    const response = await api.post("request/new", productData);
+    const response = await api.post("request/new", productData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error request product:", error.message);
@@ -135,6 +139,35 @@ export const fetchProductRequests = async () => {
   } catch (error) {
     console.error("Error fetching product requests:", error);
     throw error;
+  }
+};
+// Get product requests by warehouse ID
+export const getProductRequestsByWarehouseId = async (warehouseId) => {
+  try {
+    const response = await api.get(`request/warehouse/${warehouseId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching product requests:", error);
+    throw error;
+  }
+};
+export const approveProductRequest = async (id) => {
+  try {
+    const response = await api.put(`request/${id}/approve`);
+    return response.data;
+  } catch (error) {
+    console.error("Error approving product request:", error);
+    throw new Error("Failed to approve product request");
+  }
+};
+
+export const rejectProductRequest = async (id) => {
+  try {
+    const response = await api.put(`request/${id}/reject`);
+    return response.data;
+  } catch (error) {
+    console.error("Error rejecting product request:", error);
+    throw new Error("Failed to reject product request");
   }
 };
 export const getAllTransactions = async () => {

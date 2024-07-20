@@ -84,6 +84,10 @@ const SalesByUser = React.lazy(() =>
   import("./scenes/products/salesProductList")
 );
 
+const SpecificProductRequestList = React.lazy(() =>
+  import("./scenes/products/SpecificProductRequestList")
+);
+
 function PrivateRoutes() {
   const user = useSelector((state) => state.user);
 
@@ -126,6 +130,7 @@ function PrivateRoutes() {
             <Route path="/UsersOnWarehouse" element={<UsersOnWarehouse />} />
             <Route path="/ProductRequest" element={<ProductRequest />} />
             <Route path="/restockTransferList" element={<RestockList />} />
+            <Route path="/requests" element={<SpecificProductRequestList />} />
           </Routes>
         );
       case "manager": // Combine cases for Call Center and General Manager
