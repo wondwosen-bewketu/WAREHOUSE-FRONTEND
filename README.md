@@ -126,6 +126,6 @@ git clone https://github.com/wondwosen-bewketu/WAREHOUSE-FRONTEND.git
 cd WAREHOUSE-FRONTEND
 npm install
 
-
-
-
+## Super Administrator Login
+phoneNumber: "0908090809"
+password: "nhatty08"
